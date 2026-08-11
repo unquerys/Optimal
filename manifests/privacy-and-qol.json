@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "privacy.advertising-id.disable",
+      "name": "Disable the Windows advertising ID",
+      "category": "privacy",
+      "tier": "verified",
+      "description": "Stops apps from using the current user's advertising ID for cross-app personalization.",
+      "impact": "Reduces personalized advertising signals without disabling Microsoft Store apps.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Telemetry.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo", "name": "Enabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo", "name": "Enabled", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo", "name": "Enabled" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.tailored-experiences.disable",
+      "name": "Disable tailored experiences",
+      "category": "privacy",
+      "tier": "verified",
+      "description": "Prevents Windows from using diagnostic data to personalize tips, ads, and recommendations.",
+      "impact": "Reduces diagnostic-data personalization while leaving required diagnostics unchanged.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Telemetry.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Privacy", "name": "TailoredExperiencesWithDiagnosticDataEnabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Privacy", "name": "TailoredExperiencesWithDiagnosticDataEnabled", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Privacy", "name": "TailoredExperiencesWithDiagnosticDataEnabled" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.windows-suggestions.disable",
+      "name": "Disable Windows suggestions and setup prompts",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Turns off suggested apps, post-update welcome prompts, Settings suggestions, and Start recommendations for the current user.",
+      "impact": "Makes Windows surfaces quieter and reduces promotional content.",
+      "tradeoff": "Windows will no longer surface feature introductions and setup reminders through these channels.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Windows_Suggestions.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-310093Enabled", "equals": 0 },
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SystemPaneSuggestionsEnabled", "equals": 0 },
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SilentInstalledAppsEnabled", "equals": 0 },
+        { "type": "registry", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement", "name": "ScoobeSystemSettingEnabled", "equals": 0 },
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "ShowSyncProviderNotifications", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-310093Enabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SystemPaneSuggestionsEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SilentInstalledAppsEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement", "name": "ScoobeSystemSettingEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "ShowSyncProviderNotifications", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-310093Enabled" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SystemPaneSuggestionsEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SilentInstalledAppsEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement", "name": "ScoobeSystemSettingEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "ShowSyncProviderNotifications" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.search-web-results.disable",
+      "name": "Keep Windows Search local",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Disables web suggestions in the Windows Search box for the current user.",
+      "impact": "Search results focus on local apps, settings, and files.",
+      "tradeoff": "Web suggestions will no longer appear in Windows Search.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Bing_Cortana_In_Search.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\Explorer", "name": "DisableSearchBoxSuggestions", "equals": 1 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\Explorer", "name": "DisableSearchBoxSuggestions", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\Explorer", "name": "DisableSearchBoxSuggestions" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.copilot.disable",
+      "name": "Disable Windows Copilot policy",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Hides the legacy taskbar Copilot button and applies Windows Copilot disable policies.",
+      "impact": "Reduces Copilot integration on Windows builds that honor these policy values.",
+      "tradeoff": "Copilot entry points controlled by these policies will be unavailable until reverted; newer Copilot app behavior can differ by build.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Copilot.reg",
+      "requires": { "minBuild": 22000 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot", "equals": 1 },
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot", "equals": 1 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot", "valueType": "dword", "value": 1 },
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot" },
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot", "name": "TurnOffWindowsCopilot" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.recall.disable",
+      "name": "Disable Recall snapshots by policy",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Applies Windows AI policies that disable Recall snapshot saving and local AI data analysis.",
+      "impact": "Prevents Recall snapshot collection on compatible Windows 11 devices.",
+      "tradeoff": "Recall and related Windows AI history features will be unavailable until reverted.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_AI_Recall.reg",
+      "requires": { "minBuild": 26100 },
+      "detect": [
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "TurnOffSavingSnapshots", "equals": 1 },
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "AllowRecallEnablement", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "TurnOffSavingSnapshots", "valueType": "dword", "value": 1 },
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "AllowRecallEnablement", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "DisableAIDataAnalysis", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "TurnOffSavingSnapshots" },
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "AllowRecallEnablement" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Policies\\Microsoft\\Windows\\WindowsAI", "name": "DisableAIDataAnalysis" }
+      ],
+      "reboot": true
+    },
+    {
+      "id": "privacy.edge-ai.disable",
+      "name": "Disable Edge AI integrations",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Disables Edge sidebar Copilot, page-context sharing, AI history search, and inline Compose through browser policy.",
+      "impact": "Reduces generative-AI integration and page-context sharing in Microsoft Edge.",
+      "tradeoff": "The affected Edge AI and sidebar features will be unavailable while the policies are active.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Edge_AI_Features.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "HubsSidebarEnabled", "equals": 0 },
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "ComposeInlineEnabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "HubsSidebarEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "ComposeInlineEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "EdgeHistoryAISearchEnabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "CopilotPageContext", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "HubsSidebarEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "ComposeInlineEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "EdgeHistoryAISearchEnabled" },
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Edge", "name": "CopilotPageContext" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.notepad-ai.disable",
+      "name": "Disable Notepad AI features",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Uses the Windows Notepad policy to disable generative AI features.",
+      "impact": "Keeps Notepad focused on local text editing.",
+      "tradeoff": "Rewrite and other AI-assisted Notepad commands will be unavailable.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Notepad_AI_Features.reg",
+      "requires": { "minBuild": 22000 },
+      "detect": [
+        { "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\WindowsNotepad", "name": "DisableAIFeatures", "equals": 1 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\WindowsNotepad", "name": "DisableAIFeatures", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\WindowsNotepad", "name": "DisableAIFeatures" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "gaming.pointer-acceleration.disable",
+      "name": "Disable mouse pointer acceleration",
+      "category": "gaming",
+      "tier": "situational",
+      "description": "Turns off Enhance Pointer Precision for a direct Windows pointer response.",
+      "impact": "Makes desktop pointer movement more consistent for users who prefer raw-feeling input.",
+      "tradeoff": "Pointer movement may feel slower or less assisted outside games; many games already use raw input and will not change.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Enhance_Pointer_Precision.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseSpeed", "equals": "0" },
+        { "type": "registry", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold1", "equals": "0" },
+        { "type": "registry", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold2", "equals": "0" }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseSpeed", "valueType": "string", "value": "0" },
+        { "type": "registry", "action": "set", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold1", "valueType": "string", "value": "0" },
+        { "type": "registry", "action": "set", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold2", "valueType": "string", "value": "0" }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseSpeed" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold1" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Control Panel\\Mouse", "name": "MouseThreshold2" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "explorer.end-task.enable",
+      "name": "Enable End task on the taskbar",
+      "category": "explorer",
+      "tier": "situational",
+      "description": "Adds End task to an application's taskbar context menu on supported Windows 11 builds.",
+      "impact": "Makes it faster to terminate an unresponsive application.",
+      "tradeoff": "End task closes an application immediately and can discard unsaved work when used.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Enable_End_Task.reg",
+      "requires": { "minBuild": 22621 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings", "name": "TaskbarEndTask", "equals": 1 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings", "name": "TaskbarEndTask", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings", "name": "TaskbarEndTask" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "explorer.hidden-files.show",
+      "name": "Show hidden files and folders",
+      "category": "explorer",
+      "tier": "situational",
+      "description": "Shows items marked hidden in File Explorer for the current user.",
+      "impact": "Makes troubleshooting and advanced file management easier.",
+      "tradeoff": "System and application support folders make Explorer views busier and should not be edited casually.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Show_Hidden_Folders.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Hidden", "equals": 1 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Hidden", "valueType": "dword", "value": 1 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "Hidden", "valueType": "dword", "value": 2 }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "privacy.lock-screen-tips.disable",
+      "name": "Disable lock-screen tips",
+      "category": "privacy",
+      "tier": "situational",
+      "description": "Removes promotional facts, tips, and suggestions from the current user's lock screen.",
+      "impact": "Keeps the lock screen visually quiet.",
+      "tradeoff": "Windows Spotlight tips will no longer appear over lock-screen images.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Lockscreen_Tips.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338387Enabled", "equals": 0 },
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "RotatingLockScreenOverlayEnabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338387Enabled", "valueType": "dword", "value": 0 },
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "RotatingLockScreenOverlayEnabled", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "SubscribedContent-338387Enabled" },
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager", "name": "RotatingLockScreenOverlayEnabled" }
+      ],
+      "reboot": false
+    }
+  ]
+}

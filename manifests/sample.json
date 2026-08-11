@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "gaming.game-capture.disable",
+      "name": "Disable background game capture",
+      "category": "gaming",
+      "tier": "situational",
+      "description": "Turns off Windows game capture for the current user.",
+      "impact": "Avoids background capture work when Game Bar recording is not used.",
+      "tradeoff": "Game Bar will no longer record clips in the background until this is reverted.",
+      "source": "https://support.microsoft.com/en-us/windows/record-a-game-clip-on-your-pc-with-game-bar-2f477001-54d4-1276-9144-b0416a307f3c",
+      "requires": {
+        "minBuild": 19041
+      },
+      "detect": [
+        {
+          "type": "registry",
+          "path": "HKCU\\System\\GameConfigStore",
+          "name": "GameDVR_Enabled",
+          "equals": 0
+        },
+        {
+          "type": "registry",
+          "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "AppCaptureEnabled",
+          "equals": 0
+        }
+      ],
+      "apply": [
+        {
+          "type": "registry",
+          "action": "set",
+          "path": "HKCU\\System\\GameConfigStore",
+          "name": "GameDVR_Enabled",
+          "valueType": "dword",
+          "value": 0
+        },
+        {
+          "type": "registry",
+          "action": "set",
+          "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "AppCaptureEnabled",
+          "valueType": "dword",
+          "value": 0
+        }
+      ],
+      "revert": [
+        {
+          "type": "registry",
+          "action": "set",
+          "path": "HKCU\\System\\GameConfigStore",
+          "name": "GameDVR_Enabled",
+          "valueType": "dword",
+          "value": 1
+        },
+        {
+          "type": "registry",
+          "action": "set",
+          "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "AppCaptureEnabled",
+          "valueType": "dword",
+          "value": 1
+        }
+      ],
+      "reboot": false
+    }
+  ]
+}

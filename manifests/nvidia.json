@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "apps.nvidia-profile-inspector.install", "name": "Install NVIDIA Profile Inspector", "category": "apps", "tier": "situational",
+      "description": "Installs NVIDIA Profile Inspector through WinGet for automated driver-profile imports.", "impact": "Adds an advanced NVIDIA driver profile editor used by Optimal's named profiles.",
+      "tradeoff": "The tool exposes hidden and driver-specific values; use only Optimal's reviewed profiles unless you understand NVAPI settings.",
+      "source": "https://github.com/Orbmu2k/nvidiaProfileInspector", "requires": { "gpuVendor": "nvidia" },
+      "detect": [{ "type": "winget", "packageId": "Orbmu2k.nvidiaProfileInspector", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "Orbmu2k.nvidiaProfileInspector" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "Orbmu2k.nvidiaProfileInspector" }], "reboot": false
+    },
+    {
+      "id": "gaming.nvidia.balanced-latency", "name": "NVIDIA Balanced Latency profile", "category": "gaming", "tier": "situational",
+      "description": "Backs up custom NVIDIA profiles, then enables Low Latency Mode and highest available refresh rate globally.",
+      "impact": "Reduces the render queue without forcing maximum GPU power at all times.",
+      "tradeoff": "Global driver overrides can conflict with application-managed settings. NVIDIA Profile Inspector must be installed first.",
+      "source": "https://github.com/Orbmu2k/nvidiaProfileInspector#command-line", "requires": { "gpuVendor": "nvidia" },
+      "apply": [{ "type": "nvidiaProfile", "profile": "balanced-latency.nip" }],
+      "revert": [{ "type": "nvidiaProfile", "profile": "balanced-latency.nip" }], "reboot": false
+    },
+    {
+      "id": "gaming.nvidia.competitive", "name": "NVIDIA Competitive profile", "category": "gaming", "tier": "aggressive",
+      "description": "Backs up custom profiles, then applies Ultra Low Latency, maximum-performance power mode, highest refresh, threaded optimization, and high-performance texture filtering globally.",
+      "impact": "Prioritizes responsiveness and consistent clocks for competitive gaming.",
+      "tradeoff": "Raises idle power, heat, and fan noise and can reduce image quality. Some DX12 games ignore driver low-latency mode in favor of NVIDIA Reflex.",
+      "source": "https://github.com/Orbmu2k/nvidiaProfileInspector#advanced-settings-notice", "requires": { "gpuVendor": "nvidia" },
+      "apply": [{ "type": "nvidiaProfile", "profile": "competitive.nip" }],
+      "revert": [{ "type": "nvidiaProfile", "profile": "competitive.nip" }], "reboot": false
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+OPTIMAL 1.0 TERMS AND SAFETY NOTICE
+Updated August 10, 2026
+
+Optimal can change Windows settings, remove user-selected applications, and install third-party software. Review every proposed change, save important work, and keep a current backup before applying a plan.
+
+Optimal requires a fresh Windows restore point before an applied plan. A restore point is not a replacement for a full backup, and Windows may be unable to create or use one. Optimal stops before execution if its required restore point cannot be created.
+
+Application removal may become irreversible if Windows no longer retains the package files. Optimal does not remove Microsoft Store, Windows Security, application frameworks, hardware drivers, or protected shell components through its automatic debloat baseline.
+
+Performance and network results vary by hardware, drivers, router, internet provider, workload, and Windows version. Optimal does not promise higher FPS, lower latency, or uninterrupted service. Advanced and repair controls can reduce compatibility or require a restart. Review their warnings before use.
+
+Third-party applications are downloaded from their publishers through WinGet and remain subject to their publishers' licenses, terms, and privacy policies. Optimal does not redistribute those applications.
+
+By installing or using Optimal, you confirm that you are authorized to change the PC and accept responsibility for reviewing every plan. Optimal is provided as-is to the extent permitted by law. Do not use it on a production-critical computer without a tested recovery plan.

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "debloat.3d-viewer.remove", "name": "Remove 3D Viewer", "category": "debloat", "tier": "situational",
+      "description": "Removes the legacy Microsoft 3D Viewer app for the current user.", "impact": "Removes an unused consumer app and Start menu entry.",
+      "tradeoff": "3D model files need another viewer until the app is restored.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.Microsoft3DViewer", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.Microsoft3DViewer" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.Microsoft3DViewer" }], "reboot": false
+    },
+    {
+      "id": "debloat.cortana.remove", "name": "Remove legacy Cortana", "category": "debloat", "tier": "situational",
+      "description": "Removes the discontinued Cortana consumer app where it is still installed.", "impact": "Removes the legacy assistant package.",
+      "tradeoff": "Legacy Cortana voice workflows stop working.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.549981C3F5F10", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.549981C3F5F10" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.549981C3F5F10" }], "reboot": false
+    },
+    {
+      "id": "debloat.messaging.remove", "name": "Remove Messaging", "category": "debloat", "tier": "situational",
+      "description": "Removes the retired Windows Messaging app for the current user.", "impact": "Removes a discontinued inbox app.",
+      "tradeoff": "Legacy Messaging integration is unavailable.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.Messaging", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.Messaging" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.Messaging" }], "reboot": false
+    },
+    {
+      "id": "debloat.mixed-reality.remove", "name": "Remove Mixed Reality Portal", "category": "debloat", "tier": "situational",
+      "description": "Removes Mixed Reality Portal when no Windows Mixed Reality headset is used.", "impact": "Removes the dormant headset portal package.",
+      "tradeoff": "Windows Mixed Reality headsets require restoring the app.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.MixedReality.Portal", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.MixedReality.Portal" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.MixedReality.Portal" }], "reboot": false
+    },
+    {
+      "id": "debloat.sway.remove", "name": "Remove Microsoft Sway", "category": "debloat", "tier": "situational",
+      "description": "Removes the Sway presentation app for the current user.", "impact": "Removes an optional Microsoft 365 companion app.",
+      "tradeoff": "Sway presentations must be opened on the web until restored.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.Office.Sway", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.Office.Sway" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.Office.Sway" }], "reboot": false
+    },
+    {
+      "id": "debloat.wallet.remove", "name": "Remove Microsoft Wallet", "category": "debloat", "tier": "situational",
+      "description": "Removes the retired Microsoft Wallet app for the current user.", "impact": "Removes a discontinued consumer package.",
+      "tradeoff": "Legacy Wallet integration is unavailable.", "source": "https://github.com/raphire/win11debloat/blob/master/Config/Apps.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.Wallet", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.Wallet" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.Wallet" }], "reboot": false
+    }
+  ]
+}

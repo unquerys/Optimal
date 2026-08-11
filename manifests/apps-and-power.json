@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "power.optimal-plan.install",
+      "name": "OPTIMAL POWER PLAN",
+      "category": "power",
+      "tier": "aggressive",
+      "description": "Creates and activates a custom maximum-performance desktop power plan derived from Ultimate Performance.",
+      "impact": "Prioritizes sustained processor performance and disables automatic sleep while plugged in.",
+      "tradeoff": "Increases energy use, heat, fan noise, and component idle power. Intended only for plugged-in desktop gaming systems.",
+      "source": "https://learn.microsoft.com/windows-hardware/design/device-experiences/powercfg-command-line-options",
+      "requires": { "minBuild": 19041, "deviceKind": "desktop" },
+      "apply": [
+        { "type": "powercfg", "action": "duplicateScheme", "source": "ultimate", "destination": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f", "name": "OPTIMAL POWER PLAN", "description": "Maximum performance profile managed by Optimal" },
+        { "type": "powercfg", "action": "setSetting", "scheme": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f", "subgroup": "54533251-82be-4824-96c1-47b60b740d00", "setting": "893dee8e-2bef-41e0-89c6-b55d0929964c", "ac": 100 },
+        { "type": "powercfg", "action": "setSetting", "scheme": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f", "subgroup": "54533251-82be-4824-96c1-47b60b740d00", "setting": "bc5038f7-23e0-4960-96da-33abaf5935ec", "ac": 100 },
+        { "type": "powercfg", "action": "setSetting", "scheme": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f", "subgroup": "54533251-82be-4824-96c1-47b60b740d00", "setting": "94d3a615-a899-4ac5-ae2b-e4d8f634367f", "ac": 1 },
+        { "type": "powercfg", "action": "setSetting", "scheme": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f", "subgroup": "238c9fa8-0aad-41ed-83f4-97be242c8f20", "setting": "29f6c1db-86da-48c5-9fdb-f2b67b1f44da", "ac": 0 },
+        { "type": "powercfg", "action": "setActiveScheme", "scheme": "6a37ebd8-68e9-4a8f-a1ca-2e62c4a6e98f" }
+      ],
+      "revert": [
+        { "type": "powercfg", "action": "setActiveScheme", "scheme": "balanced" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "apps.brave.install", "name": "Install Brave", "category": "apps", "tier": "situational",
+      "description": "Installs the Brave privacy-focused Chromium browser through WinGet.", "impact": "Adds an ad-blocking browser with privacy protections enabled by default.",
+      "tradeoff": "Installs third-party software subject to Brave's license and update service.", "source": "https://brave.com/",
+      "detect": [{ "type": "winget", "packageId": "Brave.Brave", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "Brave.Brave" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "Brave.Brave" }], "reboot": false
+    },
+    {
+      "id": "apps.firefox.install", "name": "Install Firefox", "category": "apps", "tier": "situational",
+      "description": "Installs Mozilla Firefox through WinGet.", "impact": "Adds an independently developed browser with extensive privacy controls.",
+      "tradeoff": "Installs third-party software subject to Mozilla's license and update service.", "source": "https://www.mozilla.org/firefox/",
+      "detect": [{ "type": "winget", "packageId": "Mozilla.Firefox", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "Mozilla.Firefox" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "Mozilla.Firefox" }], "reboot": false
+    },
+    {
+      "id": "apps.librewolf.install", "name": "Install LibreWolf", "category": "apps", "tier": "situational",
+      "description": "Installs LibreWolf, a privacy-hardened Firefox derivative, through WinGet.", "impact": "Adds a browser configured to minimize tracking and telemetry.",
+      "tradeoff": "Aggressive privacy defaults can break DRM, login persistence, or site compatibility.", "source": "https://librewolf.net/",
+      "detect": [{ "type": "winget", "packageId": "LibreWolf.LibreWolf", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "LibreWolf.LibreWolf" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "LibreWolf.LibreWolf" }], "reboot": false
+    },
+    {
+      "id": "apps.powertoys.install", "name": "Install Microsoft PowerToys", "category": "apps", "tier": "verified",
+      "description": "Installs Microsoft's advanced Windows utilities through WinGet.", "impact": "Adds tools such as FancyZones, PowerRename, and Keyboard Manager.",
+      "source": "https://github.com/microsoft/PowerToys",
+      "detect": [{ "type": "winget", "packageId": "Microsoft.PowerToys", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "Microsoft.PowerToys" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "Microsoft.PowerToys" }], "reboot": false
+    },
+    {
+      "id": "apps.everything.install", "name": "Install Everything Search", "category": "apps", "tier": "verified",
+      "description": "Installs the lightweight Everything filename search utility through WinGet.", "impact": "Provides near-instant indexed filename search on NTFS volumes.",
+      "source": "https://www.voidtools.com/",
+      "detect": [{ "type": "winget", "packageId": "voidtools.Everything", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "voidtools.Everything" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "voidtools.Everything" }], "reboot": false
+    },
+    {
+      "id": "apps.latencymon.install", "name": "Install LatencyMon", "category": "apps", "tier": "situational",
+      "description": "Installs LatencyMon for measuring DPC/ISR latency and identifying problem drivers.", "impact": "Adds diagnosis tooling; it does not apply unverified latency tweaks.",
+      "tradeoff": "Long measurement sessions add small monitoring overhead and results require interpretation.", "source": "https://www.resplendence.com/latencymon",
+      "detect": [{ "type": "winget", "packageId": "Resplendence.LatencyMon", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "Resplendence.LatencyMon" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "Resplendence.LatencyMon" }], "reboot": false
+    },
+    {
+      "id": "apps.gpuz.install", "name": "Install GPU-Z", "category": "apps", "tier": "situational",
+      "description": "Installs GPU-Z for graphics hardware, sensor, and driver diagnosis.", "impact": "Adds read-only GPU monitoring and validation tools.",
+      "tradeoff": "Sensor polling can add negligible monitoring overhead while open.", "source": "https://www.techpowerup.com/gpuz/",
+      "detect": [{ "type": "winget", "packageId": "TechPowerUp.GPU-Z", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "TechPowerUp.GPU-Z" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "TechPowerUp.GPU-Z" }], "reboot": false
+    },
+    {
+      "id": "apps.nana-zip.install", "name": "Install NanaZip", "category": "apps", "tier": "verified",
+      "description": "Installs the modern open-source NanaZip archive manager through WinGet.", "impact": "Adds broad archive support with Windows 11 shell integration.",
+      "source": "https://github.com/M2Team/NanaZip",
+      "detect": [{ "type": "winget", "packageId": "M2Team.NanaZip", "installed": true }],
+      "apply": [{ "type": "winget", "action": "install", "packageId": "M2Team.NanaZip" }],
+      "revert": [{ "type": "winget", "action": "uninstall", "packageId": "M2Team.NanaZip" }], "reboot": false
+    }
+  ]
+}

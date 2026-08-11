@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "debloat.clipchamp.remove", "name": "Remove Clipchamp", "category": "debloat", "tier": "situational",
+      "description": "Removes Clipchamp for the current Windows user.", "impact": "Removes the bundled video editor and its Start menu entry.",
+      "tradeoff": "Clipchamp projects require reinstalling the app. Undo depends on Windows retaining its package files.",
+      "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Clipchamp.Clipchamp", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Clipchamp.Clipchamp" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Clipchamp.Clipchamp" }], "reboot": false
+    },
+    {
+      "id": "debloat.solitaire.remove", "name": "Remove Microsoft Solitaire", "category": "debloat", "tier": "situational",
+      "description": "Removes Microsoft Solitaire Collection for the current user.", "impact": "Reclaims the app footprint and removes its Start entry.",
+      "tradeoff": "Solitaire games and progress synchronization require reinstalling the app.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.MicrosoftSolitaireCollection", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.MicrosoftSolitaireCollection" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.MicrosoftSolitaireCollection" }], "reboot": false
+    },
+    {
+      "id": "debloat.news.remove", "name": "Remove Microsoft News", "category": "debloat", "tier": "situational",
+      "description": "Removes the bundled Microsoft News package for the current user.", "impact": "Removes news content and associated app entries.",
+      "tradeoff": "Windows surfaces that rely on the package may show less news content.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.BingNews", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.BingNews" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.BingNews" }], "reboot": false
+    },
+    {
+      "id": "debloat.weather.remove", "name": "Remove Microsoft Weather", "category": "debloat", "tier": "situational",
+      "description": "Removes the bundled Microsoft Weather package for the current user.", "impact": "Removes the Weather app footprint.",
+      "tradeoff": "The standalone Weather app will be unavailable until restored.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.BingWeather", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.BingWeather" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.BingWeather" }], "reboot": false
+    },
+    {
+      "id": "debloat.feedback-hub.remove", "name": "Remove Feedback Hub", "category": "debloat", "tier": "situational",
+      "description": "Removes Windows Feedback Hub for the current user.", "impact": "Removes the feedback client and background package footprint.",
+      "tradeoff": "You will not be able to submit Windows feedback through Feedback Hub.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.WindowsFeedbackHub", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.WindowsFeedbackHub" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.WindowsFeedbackHub" }], "reboot": false
+    },
+    {
+      "id": "debloat.get-help.remove", "name": "Remove Get Help", "category": "debloat", "tier": "situational",
+      "description": "Removes the Get Help application for the current user.", "impact": "Removes the consumer support app footprint.",
+      "tradeoff": "Windows support links may direct to the web instead of opening Get Help.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.GetHelp", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.GetHelp" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.GetHelp" }], "reboot": false
+    },
+    {
+      "id": "debloat.office-hub.remove", "name": "Remove Microsoft 365 hub", "category": "debloat", "tier": "situational",
+      "description": "Removes the bundled Microsoft 365 hub app for the current user.", "impact": "Removes Microsoft 365 promotions and the hub package.",
+      "tradeoff": "The Microsoft 365 launcher experience will be unavailable until restored.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.MicrosoftOfficeHub", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.MicrosoftOfficeHub" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.MicrosoftOfficeHub" }], "reboot": false
+    },
+    {
+      "id": "debloat.power-automate.remove", "name": "Remove Power Automate Desktop", "category": "debloat", "tier": "situational",
+      "description": "Removes Power Automate Desktop for the current Windows user.", "impact": "Removes the bundled automation client when it is unused.",
+      "tradeoff": "Existing desktop automation flows require reinstalling Power Automate Desktop.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.PowerAutomateDesktop", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.PowerAutomateDesktop" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.PowerAutomateDesktop" }], "reboot": false
+    },
+    {
+      "id": "debloat.dev-home.remove", "name": "Remove Dev Home", "category": "debloat", "tier": "situational",
+      "description": "Removes Microsoft Dev Home for the current Windows user.", "impact": "Removes developer dashboard services and its app footprint when unused.",
+      "tradeoff": "Dev Drive and developer dashboard workflows may require reinstalling Dev Home.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{ "type": "appx", "packageName": "Microsoft.Windows.DevHome", "installed": false }],
+      "apply": [{ "type": "appx", "action": "remove", "packageName": "Microsoft.Windows.DevHome" }],
+      "revert": [{ "type": "appx", "action": "restore", "packageName": "Microsoft.Windows.DevHome" }], "reboot": false
+    }
+  ]
+}

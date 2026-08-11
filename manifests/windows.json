@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "explorer.extensions.show",
+      "name": "Show file extensions",
+      "category": "explorer",
+      "tier": "verified",
+      "description": "Shows extensions such as .exe, .zip, and .jpg for known file types in File Explorer.",
+      "impact": "Makes file types explicit and helps expose misleading filenames.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Show_Extensions_For_Known_File_Types.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "HideFileExt", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "HideFileExt", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "HideFileExt", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "explorer.taskbar.align-left",
+      "name": "Align the taskbar to the left",
+      "category": "explorer",
+      "tier": "situational",
+      "description": "Moves Windows 11 taskbar icons from the center to the traditional left edge.",
+      "impact": "Changes taskbar placement without changing installed applications.",
+      "tradeoff": "This is a visual preference and replaces the default centered layout.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Align_Taskbar_Left.reg",
+      "requires": { "minBuild": 22000 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "TaskbarAl", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "TaskbarAl", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "delete", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", "name": "TaskbarAl" }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "explorer.search-highlights.disable",
+      "name": "Disable Search Highlights",
+      "category": "explorer",
+      "tier": "situational",
+      "description": "Removes dynamic branded content from the Windows taskbar search box.",
+      "impact": "Keeps search visually quieter and focused on local results.",
+      "tradeoff": "Seasonal artwork and highlighted web topics will no longer appear in Search.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Search_Highlights.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsDynamicSearchBoxEnabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsDynamicSearchBoxEnabled", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings", "name": "IsDynamicSearchBoxEnabled", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "system.transparency.disable",
+      "name": "Disable transparency effects",
+      "category": "system",
+      "tier": "situational",
+      "description": "Turns off acrylic and transparency effects across Windows surfaces.",
+      "impact": "Reduces visual compositing on older or low-power graphics hardware.",
+      "tradeoff": "Windows surfaces will use solid colors instead of translucent materials.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Transparency.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "name": "EnableTransparency", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "name": "EnableTransparency", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "name": "EnableTransparency", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "system.storage-sense.disable",
+      "name": "Disable automatic Storage Sense cleanup",
+      "category": "system",
+      "tier": "situational",
+      "description": "Stops Storage Sense from automatically cleaning files for the current user.",
+      "impact": "Prevents automatic cleanup from removing locally retained temporary content.",
+      "tradeoff": "Temporary files can accumulate and must be cleaned manually.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Storage_Sense.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy", "name": "01", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy", "name": "01", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy", "name": "01", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": false
+    },
+    {
+      "id": "power.fast-startup.disable",
+      "name": "Disable Fast Startup",
+      "category": "power",
+      "tier": "situational",
+      "description": "Makes Shut down perform a full shutdown instead of preserving the kernel session.",
+      "impact": "Can make driver and dual-boot behavior more predictable.",
+      "tradeoff": "Cold boot may take longer on some systems.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Fast_Startup.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", "name": "HiberbootEnabled", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", "name": "HiberbootEnabled", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power", "name": "HiberbootEnabled", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": true
+    },
+    {
+      "id": "update.delivery-optimization.disable",
+      "name": "Disable Delivery Optimization sharing",
+      "category": "update",
+      "tier": "verified",
+      "description": "Stops Windows Update from downloading from or uploading update data to other PCs.",
+      "impact": "Eliminates peer-to-peer update traffic from this PC.",
+      "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Delivery_Optimization.reg",
+      "requires": { "minBuild": 19041 },
+      "detect": [
+        { "type": "registry", "path": "HKU\\S-1-5-20\\Software\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Settings", "name": "DownloadMode", "equals": 0 }
+      ],
+      "apply": [
+        { "type": "registry", "action": "set", "path": "HKU\\S-1-5-20\\Software\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Settings", "name": "DownloadMode", "valueType": "dword", "value": 0 }
+      ],
+      "revert": [
+        { "type": "registry", "action": "set", "path": "HKU\\S-1-5-20\\Software\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Settings", "name": "DownloadMode", "valueType": "dword", "value": 1 }
+      ],
+      "reboot": false
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "system.dark-mode.enable", "name": "Enable Windows dark mode", "category": "system", "tier": "situational",
+      "description": "Uses dark mode for Windows and application surfaces for the current user.", "impact": "Applies a consistent dark appearance across supported apps and shell surfaces.",
+      "tradeoff": "Some legacy applications ignore or partially support the setting.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Enable_Dark_Mode.reg",
+      "detect": [{"type":"registry","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"AppsUseLightTheme","equals":0},{"type":"registry","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"SystemUsesLightTheme","equals":0}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"AppsUseLightTheme","valueType":"dword","value":0},{"type":"registry","action":"set","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"SystemUsesLightTheme","valueType":"dword","value":0}],
+      "revert": [{"type":"registry","action":"set","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"AppsUseLightTheme","valueType":"dword","value":1},{"type":"registry","action":"set","path":"HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize","name":"SystemUsesLightTheme","valueType":"dword","value":1}], "reboot": false
+    },
+    {
+      "id": "privacy.location.disable", "name": "Disable Windows location policy", "category": "privacy", "tier": "aggressive",
+      "description": "Disables Windows location services through machine policy.", "impact": "Prevents apps and Windows features from obtaining device location through the Windows location service.",
+      "tradeoff": "Maps, weather, Find My Device, automatic time zone, and location-aware apps can stop working correctly.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Location_Services.reg",
+      "detect": [{"type":"registry","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors","name":"DisableLocation","equals":1}],
+      "apply": [{"type":"registry","action":"set","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors","name":"DisableLocation","valueType":"dword","value":1}],
+      "revert": [{"type":"registry","action":"delete","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors","name":"DisableLocation"}], "reboot": false
+    },
+    {
+      "id": "explorer.phone-link-start.disable", "name": "Hide Phone Link from Start", "category": "explorer", "tier": "situational",
+      "description": "Disables the mobile-device companion panel in the Windows Start menu.", "impact": "Keeps Start focused on local apps and files.",
+      "tradeoff": "Phone Link remains installed but its Start companion panel is hidden.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Phone_Link_In_Start.reg", "requires":{"minBuild":22000},
+      "detect": [{"type":"registry","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Start\\Companions\\Microsoft.YourPhone_8wekyb3d8bbwe","name":"IsEnabled","equals":0}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Start\\Companions\\Microsoft.YourPhone_8wekyb3d8bbwe","name":"IsEnabled","valueType":"dword","value":0}],
+      "revert": [{"type":"registry","action":"delete","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Start\\Companions\\Microsoft.YourPhone_8wekyb3d8bbwe","name":"IsEnabled"}], "reboot": false
+    },
+    {
+      "id": "explorer.start-recommended.disable", "name": "Hide Start recommendations", "category": "explorer", "tier": "situational",
+      "description": "Hides the Recommended section in Start on supported Windows editions.", "impact": "Creates a cleaner Start layout with less recent-content exposure.",
+      "tradeoff": "Recent files and suggested items no longer appear in Start.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Start_Recommended.reg", "requires":{"minBuild":22000},
+      "detect": [{"type":"registry","path":"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer","name":"HideRecommendedSection","equals":1}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer","name":"HideRecommendedSection","valueType":"dword","value":1}],
+      "revert": [{"type":"registry","action":"delete","path":"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer","name":"HideRecommendedSection"}], "reboot": false
+    },
+    {
+      "id": "explorer.last-active-click.enable", "name": "Enable last-active taskbar click", "category": "explorer", "tier": "situational",
+      "description": "Clicking a grouped taskbar icon focuses its last active window instead of opening thumbnails first.", "impact": "Speeds switching between windows in grouped applications.",
+      "tradeoff": "Changes familiar grouped-taskbar click behavior.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Enable_Last_Active_Click.reg",
+      "detect": [{"type":"registry","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LastActiveClick","equals":1}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LastActiveClick","valueType":"dword","value":1}],
+      "revert": [{"type":"registry","action":"delete","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LastActiveClick"}], "reboot": false
+    },
+    {
+      "id": "gaming.sticky-keys-shortcut.disable", "name": "Disable Sticky Keys shortcut", "category": "gaming", "tier": "situational",
+      "description": "Prevents the five-Shift-press shortcut from interrupting games.", "impact": "Avoids accidental Sticky Keys prompts during rapid keyboard input.",
+      "tradeoff": "Users who rely on the keyboard shortcut must enable Sticky Keys from Accessibility settings.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Disable_Sticky_Keys_Shortcut.reg",
+      "detect": [{"type":"registry","path":"HKCU\\Control Panel\\Accessibility\\StickyKeys","name":"Flags","equals":"506"}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\Control Panel\\Accessibility\\StickyKeys","name":"Flags","valueType":"string","value":"506"}],
+      "revert": [{"type":"registry","action":"delete","path":"HKCU\\Control Panel\\Accessibility\\StickyKeys","name":"Flags"}], "reboot": false
+    },
+    {
+      "id": "explorer.launch-this-pc.enable", "name": "Open File Explorer to This PC", "category": "explorer", "tier": "situational",
+      "description": "Makes File Explorer open to drives and devices instead of Home.", "impact": "Provides quicker access to storage volumes.",
+      "tradeoff": "Pinned and recent Home content is one click farther away.", "source": "https://github.com/Raphire/Win11Debloat/blob/master/Regfiles/Launch_File_Explorer_To_This_PC.reg",
+      "detect": [{"type":"registry","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LaunchTo","equals":1}],
+      "apply": [{"type":"registry","action":"set","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LaunchTo","valueType":"dword","value":1}],
+      "revert": [{"type":"registry","action":"delete","path":"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced","name":"LaunchTo"}], "reboot": false
+    },
+    {
+      "id": "system.long-paths.enable", "name": "Enable long Windows paths", "category": "system", "tier": "verified",
+      "description": "Enables Win32 long-path support for compatible applications.", "impact": "Reduces path-length failures in development tools, archives, and deeply nested folders.",
+      "source": "https://learn.microsoft.com/windows/win32/fileio/maximum-file-path-limitation",
+      "detect": [{"type":"registry","path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem","name":"LongPathsEnabled","equals":1}],
+      "apply": [{"type":"registry","action":"set","path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem","name":"LongPathsEnabled","valueType":"dword","value":1}],
+      "revert": [{"type":"registry","action":"delete","path":"HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem","name":"LongPathsEnabled"}], "reboot": true
+    },
+    {
+      "id": "privacy.activity-history.disable", "name": "Disable activity history publishing", "category": "privacy", "tier": "situational",
+      "description": "Stops Windows from publishing and uploading user activity history through machine policy.", "impact": "Reduces cross-device activity synchronization.",
+      "tradeoff": "Timeline-style activity continuity and some cross-device experiences will be unavailable.", "source": "https://github.com/ChrisTitusTech/winutil/blob/main/config/preset.json",
+      "detect": [{"type":"registry","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"PublishUserActivities","equals":0},{"type":"registry","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"UploadUserActivities","equals":0}],
+      "apply": [{"type":"registry","action":"set","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"PublishUserActivities","valueType":"dword","value":0},{"type":"registry","action":"set","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"UploadUserActivities","valueType":"dword","value":0}],
+      "revert": [{"type":"registry","action":"delete","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"PublishUserActivities"},{"type":"registry","action":"delete","path":"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\System","name":"UploadUserActivities"}], "reboot": false
+    }
+  ]
+}

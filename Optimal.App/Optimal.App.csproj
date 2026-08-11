@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>Optimal</AssemblyName>
+    <RootNamespace>Optimal.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>..\Optimal Symbol.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Optimal.Core\Optimal.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\Optimal Symbol.png" Link="Assets\Optimal Symbol.png" />
+    <Resource Include="..\OptimalLogo.png" Link="Assets\OptimalLogo.png" />
+    <Resource Include="Assets\Software\*.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\manifests\*.json" Link="manifests\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\profiles\**\*" Link="profiles\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\TERMS.txt" Link="TERMS.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\THIRD-PARTY-NOTICES.md" Link="THIRD-PARTY-NOTICES.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\licenses\**\*" Link="licenses\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

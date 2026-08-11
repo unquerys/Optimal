@@ -1,0 +1,60 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --no-progress -y
+
+      - name: Build and verify release
+        shell: powershell
+        run: ./scripts/build-release.ps1
+
+      - name: Upload verified artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimal-win-x64
+          if-no-files-found: error
+          path: |
+            artifacts/Optimal-Setup.exe
+            artifacts/Optimal-Setup.exe.sha256
+            artifacts/Optimal.exe
+            artifacts/Optimal.exe.sha256
+            artifacts/Optimal-win-x64.zip
+            artifacts/Optimal-win-x64.zip.sha256
+
+      - name: Publish stable GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Optimal ${{ github.ref_name }}
+          body_path: docs/release-notes-v1.0.0.md
+          make_latest: true
+          prerelease: false
+          draft: false
+          files: |
+            artifacts/Optimal-Setup.exe
+            artifacts/Optimal-Setup.exe.sha256
+            artifacts/Optimal.exe
+            artifacts/Optimal.exe.sha256
+            artifacts/Optimal-win-x64.zip
+            artifacts/Optimal-win-x64.zip.sha256

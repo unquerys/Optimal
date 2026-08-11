@@ -1,0 +1,1237 @@
+<Window x:Class="Optimal.App.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework" xmlns:local="clr-namespace:Optimal.App" Title="Optimal" Width="1260" Height="800" MinWidth="980" MinHeight="680" WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize" Background="{StaticResource CanvasBrush}" Icon="Assets/Optimal Symbol.png" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextHintingMode="Fixed" TextOptions.TextRenderingMode="ClearType" Loaded="Window_Loaded">
+  <shell:WindowChrome.WindowChrome>
+    <shell:WindowChrome CaptionHeight="42" ResizeBorderThickness="6" CornerRadius="12" GlassFrameThickness="0" UseAeroCaptionButtons="False" />
+  </shell:WindowChrome.WindowChrome>
+  <FrameworkElement.Resources>
+    <ResourceDictionary>
+      <BooleanToVisibilityConverter x:Key="BoolVisibility" />
+      <DataTemplate x:Key="TweakCardTemplate">
+        <Border Width="438" Margin="0,0,12,12" Padding="18" Style="{StaticResource CardStyle}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid Column="0" Margin="0,0,24,0">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+              </Grid.RowDefinitions>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock FontSize="10" FontWeight="Bold" Margin="0,0,10,0" Foreground="{StaticResource AccentBrush}" Text="{Binding Category}" />
+                <TextBlock FontSize="10" FontWeight="Bold" Text="{Binding Tier}" Foreground="{Binding TierBrush}" />
+                <Border Background="#2B214A" CornerRadius="4" Padding="6,2" Margin="9,-2,0,-2" Visibility="{Binding IsAdvanced, Converter={StaticResource BoolVisibility}}">
+                  <TextBlock Text="ADVANCED" FontSize="8" FontWeight="Bold" Foreground="{StaticResource PurpleBrush}" />
+                </Border>
+                <TextBlock Text="  ·  RESTART" FontSize="10" Foreground="{StaticResource PurpleBrush}" Visibility="{Binding Reboot, Converter={StaticResource BoolVisibility}}" />
+              </StackPanel>
+              <TextBlock Grid.Row="1" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,0" Text="{Binding Name}" />
+              <TextBlock Grid.Row="2" FontSize="13" TextWrapping="Wrap" Margin="0,5,0,0" Foreground="{StaticResource MutedBrush}" Text="{Binding Description}" />
+              <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,0,0">
+                <Ellipse Width="6" Height="6" VerticalAlignment="Center" Fill="{Binding StateBrush}" />
+                <TextBlock FontSize="11" FontWeight="SemiBold" Margin="7,0,0,0" Text="{Binding State}" Foreground="{Binding StateBrush}" />
+                <Button Content="View source" FontSize="9" Padding="8,3" Margin="10,-4,0,-4" Style="{StaticResource GhostButton}" Tag="{Binding Source}" Click="OpenSource_Click" />
+              </StackPanel>
+              <Border Grid.Row="4" Background="#161D2D" CornerRadius="7" Padding="9" Margin="0,12,0,0" Visibility="{Binding HasTradeoff, Converter={StaticResource BoolVisibility}}">
+                <TextBlock FontSize="10" TextWrapping="Wrap" Foreground="{StaticResource WarningBrush}" Text="{Binding Tradeoff}" />
+              </Border>
+            </Grid>
+            <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Top">
+              <CheckBox Style="{StaticResource ToggleStyle}" IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding Name}" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </DataTemplate>
+      <DataTemplate x:Key="PlanRowTemplate">
+        <Border BorderThickness="0,0,0,1" Padding="0,14" BorderBrush="{StaticResource BorderBrush}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+              <TextBlock FontWeight="SemiBold" FontSize="14" Text="{Binding Name}" />
+              <TextBlock FontSize="11" TextWrapping="Wrap" Margin="0,4,16,0" Foreground="{StaticResource MutedBrush}" Text="{Binding Detail}" />
+            </StackPanel>
+            <Border Grid.Column="1" Background="#172230" CornerRadius="6" Padding="8,4" VerticalAlignment="Center">
+              <TextBlock FontSize="10" FontWeight="Bold" Text="{Binding Status}" Foreground="{Binding StatusBrush}" />
+            </Border>
+          </Grid>
+        </Border>
+      </DataTemplate>
+      <DataTemplate x:Key="SoftwareCardTemplate">
+        <Border Width="438" Margin="0,0,12,12" Padding="18" Style="{StaticResource CardStyle}">
+          <Grid>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="56" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid Width="44" Height="44" VerticalAlignment="Top">
+              <Border CornerRadius="11" Background="{Binding BrandBrush}">
+                <TextBlock FontWeight="Bold" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFFFFFFF" Text="{Binding BrandGlyph}" />
+              </Border>
+              <Image Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" Source="{Binding LogoPath}" />
+            </Grid>
+            <StackPanel Grid.Column="1" Margin="8,0,18,0">
+              <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Name}" />
+              <TextBlock FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0" Foreground="{StaticResource MutedBrush}" Text="{Binding Description}" />
+              <TextBlock Text="Exact WinGet package · review before install" FontSize="9" Margin="0,9,0,0" Foreground="{StaticResource AccentBrush}" />
+            </StackPanel>
+            <CheckBox Grid.Column="2" VerticalAlignment="Top" Style="{StaticResource ToggleStyle}" IsChecked="{Binding IsSelected, Mode=TwoWay}" AutomationProperties.Name="{Binding Name}" />
+          </Grid>
+        </Border>
+      </DataTemplate>
+    </ResourceDictionary>
+  </FrameworkElement.Resources>
+  <Border BorderBrush="#263246" BorderThickness="1" CornerRadius="12" Background="{StaticResource CanvasBrush}">
+    <Grid ClipToBounds="True">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="42" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+      <Grid Row="0" Background="#0A0F17" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="46" />
+          <ColumnDefinition Width="46" />
+          <ColumnDefinition Width="46" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="16,0,0,0" VerticalAlignment="Center">
+          <Image Source="Assets/Optimal Symbol.png" Width="22" Height="22" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+          <TextBlock Text="OPTIMAL" Margin="9,0,0,0" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" />
+          <Border Margin="10,0,0,0" Background="#172131" CornerRadius="5" Padding="6,2">
+            <TextBlock Text="STABLE" FontSize="9" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" />
+          </Border>
+        </StackPanel>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0" Background="#101722" BorderBrush="#263246" BorderThickness="1" CornerRadius="7" Padding="3">
+          <StackPanel Orientation="Horizontal">
+            <Button Name="SimpleModeButton" Content="SIMPLE" Tag="simple" Style="{StaticResource SecondaryButton}" FontSize="9" Padding="12,5" ToolTip="Clear, broadly understandable controls" Click="CatalogMode_Click" />
+            <Button Name="AdvancedModeButton" Content="ADVANCED" Tag="advanced" Style="{StaticResource GhostButton}" FontSize="9" Padding="12,5" ToolTip="Policy, registry, and expert controls with tradeoffs" Click="CatalogMode_Click" />
+          </StackPanel>
+        </Border>
+        <Button Grid.Column="1" Content="" FontFamily="Segoe Fluent Icons" FontSize="10" Style="{StaticResource GhostButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Minimize_Click" />
+        <Button Grid.Column="2" Content="" FontFamily="Segoe Fluent Icons" FontSize="10" Style="{StaticResource GhostButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Maximize_Click" />
+        <Button Grid.Column="3" Content="" FontFamily="Segoe Fluent Icons" FontSize="10" Style="{StaticResource GhostButton}" shell:WindowChrome.IsHitTestVisibleInChrome="True" Click="Close_Click" />
+      </Grid>
+      <Grid Row="1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="218" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0" Background="{StaticResource SidebarBrush}" BorderBrush="#1D2838" BorderThickness="0,0,1,0">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Margin="20,24,20,22">
+              <TextBlock Text="CONTROL CENTER" Foreground="#64748A" FontSize="9" FontWeight="Bold" />
+              <TextBlock Text="Tune with confidence." FontSize="16" FontWeight="SemiBold" Margin="0,8,0,0" />
+              <TextBlock Text="Simple mode is active by default." Foreground="{StaticResource MutedBrush}" FontSize="9" Margin="0,6,0,0" />
+            </StackPanel>
+            <StackPanel Grid.Row="1">
+              <Button Name="HomeNav" Style="{StaticResource NavButton}" Click="HomeNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Home" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="OptimizeNav" Style="{StaticResource NavButton}" Click="OptimizeNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Tweaks" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="GamingNav" Style="{StaticResource NavButton}" Click="GamingNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Gaming" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="AppsNav" Style="{StaticResource NavButton}" Click="AppsNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Software" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="MaintenanceNav" Style="{StaticResource NavButton}" Click="MaintenanceNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Maintenance" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="NetworkNav" Style="{StaticResource NavButton}" Click="NetworkNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Networking" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="ModulesNav" Style="{StaticResource NavButton}" Click="ModulesNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Advanced" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="RestoreNav" Style="{StaticResource NavButton}" Click="RestoreNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="System Restore" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="HistoryNav" Style="{StaticResource NavButton}" Click="HistoryNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="Run history" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="SystemNav" Style="{StaticResource NavButton}" Click="SystemNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="This PC" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+              <Button Name="AboutNav" Style="{StaticResource NavButton}" Click="AboutNav_Click">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" FontSize="16" Width="30" />
+                  <TextBlock Text="About" FontWeight="SemiBold" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+            <Border Grid.Row="3" Margin="14" Padding="14" Background="#101925" CornerRadius="11" BorderBrush="#1E2A3B" BorderThickness="1">
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <Ellipse Name="EngineDot" Width="7" Height="7" Fill="{StaticResource WarningBrush}" VerticalAlignment="Center" />
+                  <TextBlock Name="EngineStatusText" Text="INITIALIZING" FontSize="9" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" Margin="8,0,0,0" />
+                </StackPanel>
+                <TextBlock Name="SidebarMachineText" Text="Reading this PC…" FontSize="11" Foreground="#8391A5" Margin="0,8,0,0" TextWrapping="Wrap" />
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Border>
+        <Grid Column="1">
+          <Grid Name="HomePage">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <Grid MaxWidth="960" Margin="44,34,44,34">
+                <StackPanel>
+                  <Grid>
+                    <StackPanel>
+                      <TextBlock Text="SYSTEM OVERVIEW" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                      <TextBlock Text="Your PC, clearly." FontSize="32" FontWeight="SemiBold" Margin="0,7,0,0" />
+                      <TextBlock Text="Read-only diagnostics first. You decide what happens next." Foreground="{StaticResource MutedBrush}" FontSize="14" Margin="0,8,0,0" />
+                    </StackPanel>
+                    <Button Content="Review opportunities  →" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="OptimizeNav_Click" />
+                  </Grid>
+                  <UniformGrid Columns="4" Margin="0,28,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="14" Margin="0,0,7,0">
+                      <StackPanel HorizontalAlignment="Center">
+                        <local:RadialMetric x:Name="CpuGauge" Caption="CPU" Accent="{StaticResource AccentBrush}" />
+                        <TextBlock Name="CpuMetricDetail" Text="Reading processor" Foreground="{StaticResource MutedBrush}" FontSize="10" TextAlignment="Center" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="14" Margin="7,0">
+                      <StackPanel HorizontalAlignment="Center">
+                        <local:RadialMetric x:Name="GpuGauge" Caption="GPU" Accent="{StaticResource PurpleBrush}" />
+                        <TextBlock Name="GpuMetricDetail" Text="Reading graphics" Foreground="{StaticResource MutedBrush}" FontSize="10" TextAlignment="Center" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="14" Margin="7,0">
+                      <StackPanel HorizontalAlignment="Center">
+                        <local:RadialMetric x:Name="MemoryGauge" Caption="Memory" Accent="{StaticResource SuccessBrush}" />
+                        <TextBlock Name="MemoryMetricDetail" Text="Reading memory" Foreground="{StaticResource MutedBrush}" FontSize="10" TextAlignment="Center" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="14" Margin="7,0,0,0">
+                      <StackPanel HorizontalAlignment="Center">
+                        <local:RadialMetric x:Name="StorageGauge" Caption="Storage" Accent="{StaticResource WarningBrush}" />
+                        <TextBlock Name="StorageMetricDetail" Text="Reading system drive" Foreground="{StaticResource MutedBrush}" FontSize="10" TextAlignment="Center" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,18,0,0" Background="{StaticResource HeroGradient}">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Image Source="Assets/Optimal Symbol.png" Width="52" Height="52" Stretch="Uniform" Margin="0,0,18,0" RenderOptions.BitmapScalingMode="HighQuality" />
+                      <StackPanel Grid.Column="1">
+                        <TextBlock Name="HardwareProfileTitle" Text="Building hardware profile…" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Name="HardwareProfileText" Text="Matching CPU, GPU, thermals, and device type." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,20,0" />
+                        <TextBlock Name="TemperatureText" Text="TEMPERATURE · waiting for driver sensor" Foreground="{StaticResource SuccessBrush}" FontSize="9" FontWeight="Bold" Margin="0,9,0,0" />
+                      </StackPanel>
+                      <Button Grid.Column="2" Content="Open Gaming" Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Click="GamingNav_Click" />
+                    </Grid>
+                  </Border>
+                  <Grid Margin="0,18,0,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1.35*" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,9,0">
+                      <StackPanel>
+                        <TextBlock Text="OPPORTUNITIES" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" />
+                        <TextBlock Name="OpportunityText" Text="Validating compatible changes…" FontSize="19" FontWeight="SemiBold" Margin="0,10,0,0" />
+                        <TextBlock Text="Recommendations never apply automatically. Open the catalog to inspect source, tradeoffs, current state, and undo behavior." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,18" />
+                        <Button Content="Open tweak catalog" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Click="OptimizeNav_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="22" Margin="9,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="QUICK ACCESS" Foreground="{StaticResource PurpleBrush}" FontSize="9" FontWeight="Bold" />
+                        <Button Content="Temporary files" Style="{StaticResource GhostButton}" HorizontalContentAlignment="Left" Tag="ms-settings:storagesense" Margin="-12,8,-12,0" Click="OpenWindowsTool_Click" />
+                        <Button Content="Network status" Style="{StaticResource GhostButton}" HorizontalContentAlignment="Left" Tag="ms-settings:network-status" Margin="-12,0,-12,0" Click="OpenWindowsTool_Click" />
+                        <Button Content="Graphics settings" Style="{StaticResource GhostButton}" HorizontalContentAlignment="Left" Tag="ms-settings:display-advancedgraphics" Margin="-12,0,-12,0" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </Grid>
+                  <TextBlock Text="TOOLS" FontSize="18" FontWeight="SemiBold" Margin="0,28,0,12" />
+                  <UniformGrid Columns="3">
+                    <Button Content="Maintenance" Style="{StaticResource SecondaryButton}" Margin="0,0,8,0" Click="MaintenanceNav_Click" />
+                    <Button Content="Network diagnostics" Style="{StaticResource SecondaryButton}" Margin="8,0" Click="NetworkNav_Click" />
+                    <Button Content="Performance lab" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Click="ModulesNav_Click" />
+                  </UniformGrid>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="OptimizePage" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="82" />
+            </Grid.RowDefinitions>
+            <ScrollViewer Name="OptimizeScrollViewer" Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <Grid MaxWidth="930" Margin="44,34,44,28">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <StackPanel>
+                    <TextBlock Text="OPTIMIZE" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                    <TextBlock Text="Make Windows feel lighter." FontSize="32" FontWeight="SemiBold" Margin="0,7,0,0" />
+                    <TextBlock Text="Every change is detected, explained, backed up, and reversible." Foreground="{StaticResource MutedBrush}" FontSize="14" Margin="0,8,0,0" />
+                    <WrapPanel Margin="0,20,0,0">
+                      <Button Content="STANDARD" Tag="standard" Style="{StaticResource SecondaryButton}" Padding="14,8" Margin="0,0,8,8" Click="Preset_Click" />
+                      <Button Content="MINIMAL" Tag="minimal" Style="{StaticResource GhostButton}" Padding="14,8" Margin="0,0,8,8" Click="Preset_Click" />
+                      <Button Content="PRIVACY" Tag="privacy" Style="{StaticResource GhostButton}" Padding="14,8" Margin="0,0,8,8" Click="Preset_Click" />
+                      <Button Content="PERFORMANCE" Tag="performance" Style="{StaticResource GhostButton}" Padding="14,8" Margin="0,0,8,8" Click="Preset_Click" />
+                      <Button Content="AUTO DEBLOAT" Tag="debloat" Style="{StaticResource GhostButton}" Padding="14,8" Margin="0,0,8,8" Click="Preset_Click" />
+                    </WrapPanel>
+                  </StackPanel>
+                  <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="16,12" VerticalAlignment="Center">
+                    <StackPanel>
+                      <TextBlock Name="HeroOsText" Text="Scanning Windows…" FontWeight="SemiBold" FontSize="12" />
+                      <TextBlock Name="HeroHardwareText" Text="Hardware profile pending" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,4,0,0" />
+                    </StackPanel>
+                  </Border>
+                </Grid>
+                <Grid Row="1" Margin="0,28,0,18">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="180" />
+                  </Grid.ColumnDefinitions>
+                  <Grid>
+                    <TextBox Name="SearchBox" FontSize="13" TextChanged="SearchBox_TextChanged" />
+                    <TextBlock Text="Search tweaks…" Foreground="#66758A" Margin="14,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False">
+                      <FrameworkElement.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                          <Setter Property="Visibility" Value="Collapsed" />
+                          <Style.Triggers>
+                            <DataTrigger Value="" Binding="{Binding Text, ElementName=SearchBox}">
+                              <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                          </Style.Triggers>
+                        </Style>
+                      </FrameworkElement.Style>
+                    </TextBlock>
+                  </Grid>
+                  <ComboBox Name="CategoryFilter" Grid.Column="1" Margin="12,0,0,0" SelectedIndex="0" Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}" BorderBrush="{StaticResource BorderBrush}" Padding="10,8" SelectionChanged="CategoryFilter_SelectionChanged" />
+                </Grid>
+                <Grid Row="2" Margin="0,0,0,12">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Name="CatalogSummaryText" Text="Loading catalog…" Foreground="{StaticResource MutedBrush}" FontSize="11" />
+                  <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="RECOMMENDED" Style="{StaticResource GhostButton}" FontSize="9" Click="Recommended_Click" />
+                    <Button Content="CLEAR" Style="{StaticResource GhostButton}" FontSize="9" Click="Clear_Click" />
+                  </StackPanel>
+                </Grid>
+                <ItemsControl Grid.Row="3" ItemTemplate="{StaticResource TweakCardTemplate}" ItemsSource="{Binding TweakView}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <WrapPanel />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                </ItemsControl>
+              </Grid>
+            </ScrollViewer>
+            <Border Grid.Row="1" Background="#0D131D" BorderBrush="#1D2939" BorderThickness="0,1,0,0">
+              <Grid MaxWidth="930" Margin="44,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                  <TextBlock Name="SelectionText" Text="0 tweaks selected" FontSize="14" FontWeight="SemiBold" />
+                  <TextBlock Text="Nothing changes until you review and confirm." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,3,0,0" />
+                </StackPanel>
+                <Button Name="ReviewButton" Grid.Column="1" Content="Review plan  →" Style="{StaticResource PrimaryButton}" IsEnabled="False" VerticalAlignment="Center" Click="Review_Click" />
+              </Grid>
+            </Border>
+          </Grid>
+          <Grid Name="ReviewPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="870" Margin="48,38">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel>
+                  <Button Content="←  Back to tweaks" Style="{StaticResource GhostButton}" HorizontalAlignment="Left" Margin="-12,0,0,12" Click="BackToTweaks_Click" />
+                  <TextBlock Text="Review before applying." FontSize="30" FontWeight="SemiBold" />
+                  <TextBlock Name="ReviewSummaryText" Text="Building an exact plan…" Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                </StackPanel>
+                <Grid Row="1" Margin="0,28,0,0">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="300" />
+                  </Grid.ColumnDefinitions>
+                  <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,16,0">
+                    <StackPanel>
+                      <TextBlock Text="CHANGE SET" FontSize="9" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" />
+                      <ItemsControl ItemTemplate="{StaticResource PlanRowTemplate}" Margin="0,8,0,0" ItemsSource="{Binding PlanRows}" />
+                    </StackPanel>
+                  </Border>
+                  <StackPanel Grid.Column="1">
+                    <Border Style="{StaticResource CardStyle}" Padding="20">
+                      <StackPanel>
+                        <TextBlock Text="SAFETY NET" FontSize="9" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" />
+                        <Border Background="#10221F" CornerRadius="8" Padding="11" Margin="0,18,0,0">
+                          <StackPanel Margin="8,0,0,0">
+                            <TextBlock Text="Restore point required" FontWeight="SemiBold" Foreground="{StaticResource SuccessBrush}" />
+                            <TextBlock Text="Every change and undo starts with a new Windows restore point. The run stops if Windows cannot create one." Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" />
+                          </StackPanel>
+                        </Border>
+                        <CheckBox Name="RegistryBackupCheck" IsChecked="True" Margin="0,16,0,0">
+                          <StackPanel Margin="8,0,0,0">
+                            <TextBlock Text="Registry exports" FontWeight="SemiBold" />
+                            <TextBlock Text="Readable .reg backups per run" Foreground="{StaticResource MutedBrush}" FontSize="10" />
+                          </StackPanel>
+                        </CheckBox>
+                        <Border Background="#10221F" CornerRadius="8" Padding="11" Margin="0,18,0,0">
+                          <TextBlock Text="The revert journal always captures exact prior values." Foreground="{StaticResource SuccessBrush}" FontSize="10" TextWrapping="Wrap" />
+                        </Border>
+                      </StackPanel>
+                    </Border>
+                    <Button Content="Run safe preview" Style="{StaticResource SecondaryButton}" Margin="0,14,0,0" Click="DryRun_Click" />
+                    <Button Content="Apply selected tweaks" Style="{StaticResource PrimaryButton}" Margin="0,10,0,0" Click="Apply_Click" />
+                  </StackPanel>
+                </Grid>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="ExecutionPage" Visibility="Collapsed">
+            <Grid MaxWidth="760" Margin="52" VerticalAlignment="Center">
+              <Border Style="{StaticResource CardStyle}" Padding="34">
+                <StackPanel>
+                  <Border Width="52" Height="52" CornerRadius="16" Background="{StaticResource AccentDarkBrush}" HorizontalAlignment="Left">
+                    <Grid Width="34" Height="34">
+                      <Ellipse Stroke="#32486A" StrokeThickness="3" />
+                      <Ellipse Stroke="{StaticResource AccentBrush}" StrokeThickness="3" StrokeDashArray="2 3" RenderTransformOrigin="0.5,0.5">
+                        <UIElement.RenderTransform>
+                          <RotateTransform />
+                        </UIElement.RenderTransform>
+                        <FrameworkElement.Triggers>
+                          <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                              <Storyboard RepeatBehavior="Forever">
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:1.1" />
+                              </Storyboard>
+                            </BeginStoryboard>
+                          </EventTrigger>
+                        </FrameworkElement.Triggers>
+                      </Ellipse>
+                      <Image Source="Assets/Optimal Symbol.png" Width="18" Height="18" />
+                    </Grid>
+                  </Border>
+                  <TextBlock Name="ExecutionTitle" Text="Preparing your run" FontSize="28" FontWeight="SemiBold" Margin="0,22,0,0" />
+                  <TextBlock Name="ExecutionMessage" Text="Building safety layers…" Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                  <ProgressBar Name="ExecutionProgressBar" Minimum="0" Maximum="100" Value="0" Margin="0,24,0,0" />
+                  <Border Background="#0A1018" CornerRadius="9" Padding="14" Margin="0,20,0,0" MaxHeight="190">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                      <TextBlock Name="ExecutionLog" FontFamily="Cascadia Mono, Consolas" FontSize="10" Foreground="#91A3B9" TextWrapping="Wrap" />
+                    </ScrollViewer>
+                  </Border>
+                  <Border Name="RestartNotice" Visibility="Collapsed" Background="#201B0F" BorderBrush="#665021" BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,16,0,0">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel>
+                        <TextBlock Text="Restart required to finish this plan" Foreground="{StaticResource WarningBrush}" FontWeight="SemiBold" />
+                        <TextBlock Text="Save your work first. You can restart now or later from Windows." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,4,12,0" />
+                      </StackPanel>
+                      <Button Grid.Column="1" Content="Restart now" Style="{StaticResource SecondaryButton}" Click="RestartNow_Click" />
+                    </Grid>
+                  </Border>
+                  <StackPanel Name="ExecutionActions" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0" Visibility="Collapsed">
+                    <Button Content="View run history" Style="{StaticResource SecondaryButton}" Margin="0,0,10,0" Click="HistoryNav_Click" />
+                    <Button Content="Back to Optimal" Style="{StaticResource PrimaryButton}" Click="OptimizeNav_Click" />
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Grid>
+          <Grid Name="HistoryPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="870" Margin="48,38">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel>
+                  <TextBlock Text="RUN HISTORY" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Every change leaves a trail." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Inspect dry runs, applied changes, and undo eligible runs." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                </StackPanel>
+                <ItemsControl Grid.Row="1" Margin="0,28,0,0" ItemsSource="{Binding HistoryRows}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Style="{StaticResource CardStyle}" Padding="18" Margin="0,0,0,12">
+                        <Grid>
+                          <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                          </Grid.ColumnDefinitions>
+                          <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                              <TextBlock FontSize="15" FontWeight="SemiBold" Text="{Binding Title}" />
+                              <Border Background="#172230" CornerRadius="5" Padding="7,3" Margin="9,0,0,0">
+                                <TextBlock Foreground="{StaticResource PurpleBrush}" FontSize="9" FontWeight="Bold" Text="{Binding Mode}" />
+                              </Border>
+                            </StackPanel>
+                            <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,6,0,0" Text="{Binding Date}" />
+                            <TextBlock Foreground="#B5C1D0" FontSize="11" Margin="0,8,0,0" Text="{Binding Summary}" />
+                          </StackPanel>
+                          <Button Grid.Column="1" Content="Undo run" Style="{StaticResource SecondaryButton}" VerticalAlignment="Center" IsEnabled="{Binding CanRevert}" Tag="{Binding Record}" Click="UndoRun_Click" />
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="AppsPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="930" Margin="44,34">
+                <StackPanel>
+                  <TextBlock Text="SOFTWARE" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Install useful software, clearly." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Installers live here - not mixed into Windows tweaks. Every package uses an exact WinGet ID and stays unchecked until you choose it." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                  <Grid Margin="0,24,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="CURATED APP INSTALLS" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                      <TextBlock Text="Browsers, diagnostics, and useful tools installed through exact WinGet IDs." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Select privacy stack" Tag="apps" Style="{StaticResource GhostButton}" Click="Preset_Click" />
+                  </Grid>
+                  <ItemsControl ItemTemplate="{StaticResource SoftwareCardTemplate}" ItemsSource="{Binding AppInstallTweaks}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                  <Grid Margin="0,18,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="AUTOMATED APPX DEBLOAT" Foreground="{StaticResource DangerBrush}" FontSize="10" FontWeight="Bold" />
+                      <TextBlock Text="Current-user removals only; Windows security, Store, Terminal, runtimes, and frameworks stay protected." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Select safe debloat" Tag="debloat" Style="{StaticResource GhostButton}" Click="Preset_Click" />
+                  </Grid>
+                  <ItemsControl ItemTemplate="{StaticResource TweakCardTemplate}" ItemsSource="{Binding DebloatTweaks}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                  <Button Content="Review selected automation  →" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Margin="0,8,0,12" Click="Review_Click" />
+                  <UniformGrid Columns="2" Margin="0,28,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,9,9">
+                      <StackPanel>
+                        <TextBlock Text="Installed apps" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Sort by size, inspect publishers, and uninstall desktop or Store apps one at a time." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Review installed apps" Style="{StaticResource SecondaryButton}" Tag="ms-settings:appsfeatures" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,0,0,9">
+                      <StackPanel>
+                        <TextBlock Text="Startup apps" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Disable unnecessary startup entries without uninstalling their applications." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Review startup impact" Style="{StaticResource SecondaryButton}" Tag="ms-settings:startupapps" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,9,9,0">
+                      <StackPanel>
+                        <TextBlock Text="Optional Windows features" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Inspect Hyper-V, legacy components, media features, and other optional Windows capabilities." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Open optional features" Style="{StaticResource SecondaryButton}" Tag="optionalfeatures.exe" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,9,0,0">
+                      <StackPanel>
+                        <TextBlock Text="Services &amp; troubleshooting" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Use built-in troubleshooters first. Blanket service disabling is hardware- and workload-dependent." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Open troubleshooters" Style="{StaticResource SecondaryButton}" Tag="ms-settings:troubleshoot" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <Border Background="#2A1519" BorderBrush="#5A2932" BorderThickness="1" CornerRadius="12" Padding="15" Margin="0,18,0,0">
+                    <TextBlock Text="Protected components, security tools, runtimes, driver packages, and shell dependencies are excluded from one-click removal. Deep removal will require an itemized dependency warning and explicit confirmation." Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="MaintenancePage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="930" Margin="44,34">
+                <StackPanel>
+                  <TextBlock Text="MAINTENANCE" Foreground="{StaticResource SuccessBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Clean up without guesswork." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Scan first, choose exact cache groups, then clean behind confirmation and a required restore point." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                  <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,24,0,0" Background="{StaticResource HeroGradient}">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <StackPanel>
+                        <TextBlock Text="SMART CLEAN" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                        <TextBlock Name="CleanupStatusText" Text="Ready to scan safe temporary locations" FontSize="19" FontWeight="SemiBold" Margin="0,8,0,14" />
+                        <WrapPanel>
+                          <CheckBox Name="UserTempCheck" Content="User temp" Margin="0,0,18,8" />
+                          <CheckBox Name="WindowsTempCheck" Content="Windows temp" Margin="0,0,18,8" />
+                          <CheckBox Name="ShaderCacheCheck" Content="Shader cache" Margin="0,0,18,8" />
+                          <CheckBox Name="CrashDumpCheck" Content="Crash dumps" Margin="0,0,18,8" />
+                        </WrapPanel>
+                        <TextBlock Text="Files newer than 24 hours, locked files, directories, reparse points, Downloads, Prefetch, browser profiles, and personal files are excluded." Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,8,24,0" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <Button Content="Scan" Style="{StaticResource SecondaryButton}" Click="ScanCleanup_Click" />
+                        <Button Content="Clean selected" Style="{StaticResource PrimaryButton}" Margin="0,10,0,0" Click="CleanSelected_Click" />
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                  <UniformGrid Columns="3" Margin="0,28,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,8,0">
+                      <StackPanel>
+                        <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource AccentBrush}" FontSize="22" />
+                        <TextBlock Text="Temporary files" FontSize="17" FontWeight="SemiBold" Margin="0,15,0,0" />
+                        <TextBlock Text="Review downloads, update cache, recycle bin, and temporary data before removal." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="58" Margin="0,7,0,16" />
+                        <Button Content="Review files" Style="{StaticResource SecondaryButton}" Tag="ms-settings:storagesense" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="8,0">
+                      <StackPanel>
+                        <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource PurpleBrush}" FontSize="22" />
+                        <TextBlock Text="Disk cleanup" FontSize="17" FontWeight="SemiBold" Margin="0,15,0,0" />
+                        <TextBlock Text="Open the classic Windows cleanup wizard for system-managed categories." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="58" Margin="0,7,0,16" />
+                        <Button Content="Open wizard" Style="{StaticResource SecondaryButton}" Tag="cleanmgr.exe" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="8,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource SuccessBrush}" FontSize="22" />
+                        <TextBlock Text="Storage Sense" FontSize="17" FontWeight="SemiBold" Margin="0,15,0,0" />
+                        <TextBlock Text="Configure Windows' own scheduled cleanup and retention behavior." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="58" Margin="0,7,0,16" />
+                        <Button Content="Configure" Style="{StaticResource SecondaryButton}" Tag="ms-settings:storagepolicies" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <TextBlock Text="HEALTH &amp; REPAIR" FontSize="18" FontWeight="SemiBold" Margin="0,28,0,12" />
+                  <UniformGrid Columns="2">
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,9,0">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="Reliability history" FontWeight="SemiBold" FontSize="15" />
+                          <TextBlock Text="See crashes, failed updates, and stability events over time." Foreground="{StaticResource MutedBrush}" Margin="0,6,18,0" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Open" Style="{StaticResource GhostButton}" Tag="perfmon.exe|/rel" Click="OpenWindowsTool_Click" />
+                      </Grid>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="9,0,0,0">
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition />
+                          <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                          <TextBlock Text="Optimize drives" FontWeight="SemiBold" FontSize="15" />
+                          <TextBlock Text="Let Windows analyze SSD/TRIM and HDD optimization needs." Foreground="{StaticResource MutedBrush}" Margin="0,6,18,0" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Open" Style="{StaticResource GhostButton}" Tag="dfrgui.exe" Click="OpenWindowsTool_Click" />
+                      </Grid>
+                    </Border>
+                  </UniformGrid>
+                  <Border Background="#211C10" BorderBrush="#493B1D" BorderThickness="1" CornerRadius="12" Padding="15" Margin="0,18,0,0">
+                    <TextBlock Text="Prefetch is intentionally not bulk-deleted: it is a Windows performance cache, and repeatedly clearing it can slow application launches." Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="GamingPage" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="82" />
+            </Grid.RowDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <Grid MaxWidth="930" Margin="44,34,44,28">
+                <StackPanel>
+                  <TextBlock Text="GAMING" Foreground="{StaticResource PurpleBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="A profile built for this PC." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Recommendations use the detected CPU, GPU family, device type, and supported Windows capabilities." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                  <Border Style="{StaticResource CardStyle}" Background="{StaticResource HeroGradient}" Padding="22" Margin="0,24,0,22">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="74" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Border Width="58" Height="58" CornerRadius="14" Background="#76B900">
+                        <TextBlock Text="NVIDIA" FontSize="9" FontWeight="Bold" Foreground="#FFFFFFFF" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="10,0,24,0">
+                        <TextBlock Name="GamingRecommendationTitle" Text="Detecting the best profile…" FontSize="20" FontWeight="SemiBold" />
+                        <TextBlock Name="GamingRecommendationConfidence" Text="HARDWARE SCAN" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" Margin="0,5,0,0" />
+                        <TextBlock Name="GamingRecommendationText" Text="Reading CPU and GPU capabilities." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                      </StackPanel>
+                      <Button Name="RecommendedGamingButton" Grid.Column="2" Content="Select recommendation" Style="{StaticResource PrimaryButton}" VerticalAlignment="Center" Click="SelectRecommendedGaming_Click" />
+                    </Grid>
+                  </Border>
+                  <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="GAMING CONTROLS" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                      <TextBlock Text="Windows, input, power, and driver options kept together." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Select gaming profile" Tag="performance" Style="{StaticResource GhostButton}" Click="Preset_Click" />
+                  </Grid>
+                  <ItemsControl ItemTemplate="{StaticResource TweakCardTemplate}" ItemsSource="{Binding GamingView}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+            <Border Grid.Row="1" Background="#F20C111A" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0">
+              <Grid Margin="44,0">
+                <TextBlock Name="GamingSelectionText" Text="No gaming controls selected" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                <Button Content="Review gaming plan  →" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="Review_Click" />
+              </Grid>
+            </Border>
+          </Grid>
+          <Grid Name="NetworkPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="930" Margin="44,34">
+                <StackPanel>
+                  <Grid>
+                    <StackPanel>
+                      <TextBlock Text="NETWORKING" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                      <TextBlock Text="See the connection before tuning it." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                      <TextBlock Text="Adapter and DNS discovery are read-only." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                    </StackPanel>
+                    <Button Content="Refresh diagnostics" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Right" VerticalAlignment="Center" Click="RefreshNetwork_Click" />
+                  </Grid>
+                  <UniformGrid Columns="3" Margin="0,28,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,8,0">
+                      <StackPanel>
+                        <TextBlock Text="ACTIVE ADAPTER" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="NetworkAdapterText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="8,0">
+                      <StackPanel>
+                        <TextBlock Text="DNS" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="DnsServerText" Text="Scanning…" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="8,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="LINK" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="LinkSpeedText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <UniformGrid Columns="4" Margin="0,14,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,7,0">
+                      <StackPanel>
+                        <TextBlock Text="LOCAL IPv4" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="IpAddressText" Text="Scanning…" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="7,0">
+                      <StackPanel>
+                        <TextBlock Text="GATEWAY" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="GatewayText" Text="Scanning…" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="7,0">
+                      <StackPanel>
+                        <TextBlock Text="ADDRESSING" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="NetworkModeText" Text="Scanning…" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="7,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="PROXY &amp; VPN" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <Button Content="Review" Style="{StaticResource GhostButton}" Tag="ms-settings:network-proxy" Margin="0,5,0,0" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <Border Style="{StaticResource CardStyle}" Background="{StaticResource HeroGradient}" Padding="16" Margin="0,14,0,0">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                      </Grid.ColumnDefinitions>
+                      <Grid Width="34" Height="34">
+                        <Ellipse Stroke="{StaticResource AccentBrush}" StrokeThickness="3" StrokeDashArray="2 3" RenderTransformOrigin="0.5,0.5">
+                          <UIElement.RenderTransform>
+                            <RotateTransform />
+                          </UIElement.RenderTransform>
+                          <FrameworkElement.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                              <BeginStoryboard>
+                                <Storyboard RepeatBehavior="Forever">
+                                  <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:1.4" />
+                                </Storyboard>
+                              </BeginStoryboard>
+                            </EventTrigger>
+                          </FrameworkElement.Triggers>
+                        </Ellipse>
+                      </Grid>
+                      <TextBlock Name="NetworkHealthText" Grid.Column="1" Text="Measuring route…" Foreground="{StaticResource AccentBrush}" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,0,0" />
+                    </Grid>
+                  </Border>
+                  <UniformGrid Columns="2" Margin="0,18,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,9,0">
+                      <StackPanel>
+                        <TextBlock Text="Connection controls" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Inspect adapters, metering, proxy, and Windows network reset options." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,18" />
+                        <StackPanel Orientation="Horizontal">
+                          <Button Content="Network status" Style="{StaticResource SecondaryButton}" Tag="ms-settings:network-status" Click="OpenWindowsTool_Click" />
+                          <Button Content="Adapters" Style="{StaticResource GhostButton}" Tag="ncpa.cpl" Margin="8,0,0,0" Click="OpenWindowsTool_Click" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="DNS controls" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Review current DNS here, then use the adapter panel to choose automatic DNS or a provider you trust." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,18" />
+                        <Button Content="Configure adapter DNS" Style="{StaticResource SecondaryButton}" Tag="ncpa.cpl" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <TextBlock Text="NETWORK TOOLBOX" FontSize="18" FontWeight="SemiBold" Margin="0,24,0,12" />
+                  <UniformGrid Columns="3">
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="0,0,7,7">
+                      <StackPanel>
+                        <TextBlock Text="Wi-Fi &amp; Ethernet" FontWeight="SemiBold" />
+                        <TextBlock Text="IP assignment, DNS, metering, and hardware status." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="Adapter options" Style="{StaticResource SecondaryButton}" Tag="ncpa.cpl" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="7,0,7,7">
+                      <StackPanel>
+                        <TextBlock Text="Encrypted DNS" FontWeight="SemiBold" />
+                        <TextBlock Text="Configure a trusted provider and DNS-over-HTTPS." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="DNS settings" Style="{StaticResource SecondaryButton}" Tag="ms-settings:network-advancedsettings" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="7,0,0,7">
+                      <StackPanel>
+                        <TextBlock Text="Data &amp; metering" FontWeight="SemiBold" />
+                        <TextBlock Text="Inspect per-app usage and background traffic." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="Data usage" Style="{StaticResource SecondaryButton}" Tag="ms-settings:datausage" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="0,7,7,0">
+                      <StackPanel>
+                        <TextBlock Text="Firewall &amp; security" FontWeight="SemiBold" />
+                        <TextBlock Text="Review profiles without disabling protection." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="Firewall" Style="{StaticResource SecondaryButton}" Tag="windowsdefender://network" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="7,7">
+                      <StackPanel>
+                        <TextBlock Text="Advanced sharing" FontWeight="SemiBold" />
+                        <TextBlock Text="Discovery, file sharing, and public/private mode." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="Sharing settings" Style="{StaticResource SecondaryButton}" Tag="control.exe|/name Microsoft.NetworkAndSharingCenter" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="18" Margin="7,7,0,0">
+                      <StackPanel>
+                        <TextBlock Text="Network reset" FontWeight="SemiBold" />
+                        <TextBlock Text="Last-resort repair with a Windows restart warning." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Height="42" Margin="0,6,0,12" />
+                        <Button Content="Review reset" Style="{StaticResource SecondaryButton}" Tag="ms-settings:network-status" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <Grid Margin="0,26,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="REVERSIBLE NETWORK CONTROLS" FontSize="18" FontWeight="SemiBold" />
+                      <TextBlock Text="Policy-backed options with exact prior-state capture. Advanced mode reveals compatibility-sensitive controls." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Review selected  →" Style="{StaticResource PrimaryButton}" Click="Review_Click" />
+                  </Grid>
+                  <ItemsControl ItemTemplate="{StaticResource TweakCardTemplate}" ItemsSource="{Binding NetworkView}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                  </ItemsControl>
+                  <Border Background="#211C10" BorderBrush="#493B1D" BorderThickness="1" CornerRadius="12" Padding="15" Margin="0,18,0,0">
+                    <TextBlock Text="Blanket TCP registry presets are not one-size-fits-all. Optimal measures the route and exposes supported Windows controls. Per-game QoS is offered only with an exact executable target and reversible policy." Foreground="{StaticResource WarningBrush}" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="ModulesPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="930" Margin="44,34">
+                <StackPanel>
+                  <TextBlock Text="PERFORMANCE LAB" Foreground="{StaticResource PurpleBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Advanced tools, organized by risk." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Vendor tools and dangerous hardware controls stay guided and explicit." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                  <UniformGrid Columns="2" Margin="0,28,0,0">
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,9,9">
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="GPU &amp; NVIDIA" FontSize="18" FontWeight="SemiBold" />
+                          <Border Background="#1A2852" CornerRadius="5" Padding="7,3" Margin="10,0,0,0">
+                            <TextBlock Text="AUTOMATED" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" />
+                          </Border>
+                        </StackPanel>
+                        <TextBlock Text="Back up NVIDIA custom profiles, then import a selected Optimal driver profile through NVIDIA Profile Inspector." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <WrapPanel>
+                          <Button Content="Balanced latency" Style="{StaticResource SecondaryButton}" Tag="gaming.nvidia.balanced-latency" Margin="0,0,8,8" Click="SelectTweak_Click" />
+                          <Button Content="Competitive" Style="{StaticResource PrimaryButton}" Tag="gaming.nvidia.competitive" Margin="0,0,8,8" Click="SelectTweak_Click" />
+                          <Button Content="Install profile tool" Style="{StaticResource GhostButton}" Tag="apps.nvidia-profile-inspector.install" Margin="0,0,8,8" Click="SelectTweak_Click" />
+                        </WrapPanel>
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,0,0,9">
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="Windows customization" FontSize="18" FontWeight="SemiBold" />
+                          <Border Background="#1A2852" CornerRadius="5" Padding="7,3" Margin="10,0,0,0">
+                            <TextBlock Text="MOD PLATFORM" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" />
+                          </Border>
+                        </StackPanel>
+                        <TextBlock Text="Install or open Windhawk for opt-in shell and app customization. Optimal never enables a mod automatically." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <WrapPanel>
+                          <Button Content="Select install" Style="{StaticResource PrimaryButton}" Tag="apps.windhawk.install" Margin="0,0,8,8" Click="SelectTweak_Click" />
+                          <Button Name="WindhawkButton" Content="Open Windhawk" Style="{StaticResource GhostButton}" Click="OpenWindhawk_Click" />
+                        </WrapPanel>
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,9,9,9">
+                      <StackPanel>
+                        <TextBlock Text="Drivers &amp; devices" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Inventory and vendor-directed repair workflows. Full driver removal is never bundled into a one-click optimization." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Device Manager" Style="{StaticResource SecondaryButton}" Tag="devmgmt.msc" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,9,0,9">
+                      <StackPanel>
+                        <TextBlock Text="CPU &amp; power" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Create and activate OPTIMAL POWER PLAN: Ultimate Performance base, 100% processor state, active cooling, and no AC sleep." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <WrapPanel>
+                          <Button Content="Select Optimal plan" Style="{StaticResource PrimaryButton}" Tag="power.optimal-plan.install" Margin="0,0,8,8" Click="SelectTweak_Click" />
+                          <Button Content="Power settings" Style="{StaticResource GhostButton}" Tag="ms-settings:powersleep" Click="OpenWindowsTool_Click" />
+                        </WrapPanel>
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,9,9,0">
+                      <StackPanel>
+                        <TextBlock Text="Gaming &amp; input" FontSize="18" FontWeight="SemiBold" />
+                        <TextBlock Text="Game Mode, graphics preference, controller diagnostics, and per-game profiles. Controller overclocking remains an advanced external workflow with warnings." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="Gaming settings" Style="{StaticResource SecondaryButton}" Tag="ms-settings:gaming-gamemode" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="9,9,0,0">
+                      <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                          <TextBlock Text="BIOS recommendations" FontSize="18" FontWeight="SemiBold" />
+                          <Border Background="#392718" CornerRadius="5" Padding="7,3" Margin="10,0,0,0">
+                            <TextBlock Text="READ ONLY" Foreground="{StaticResource WarningBrush}" FontSize="9" FontWeight="Bold" />
+                          </Border>
+                        </StackPanel>
+                        <TextBlock Text="Hardware-specific diagnosis and education only. Optimal will never flash firmware or silently change BIOS values." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,18" />
+                        <Button Content="System information" Style="{StaticResource SecondaryButton}" Tag="msinfo32.exe" Click="OpenWindowsTool_Click" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="RestorePage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="930" Margin="44,34">
+                <StackPanel>
+                  <TextBlock Text="SYSTEM RESTORE" Foreground="{StaticResource SuccessBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Restore points, without the mystery." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Create a named checkpoint and restore individual Optimal runs from their captured state." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" />
+                  <Grid Margin="0,26,0,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1.35*" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,9,0">
+                      <StackPanel>
+                        <Grid>
+                          <StackPanel Orientation="Horizontal">
+                            <Image Source="Assets/Optimal Symbol.png" Width="32" Height="32" Margin="0,0,12,0" />
+                            <TextBlock Text="Create restore point" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center" />
+                          </StackPanel>
+                          <Button Content="Create  +" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" Click="CreateRestorePoint_Click" />
+                        </Grid>
+                        <TextBox Name="RestoreNameBox" Text="Optimal checkpoint" Margin="0,20,0,0" />
+                        <TextBox Name="RestoreDescriptionBox" Text="Before manual changes" Height="70" TextWrapping="Wrap" AcceptsReturn="True" Margin="0,10,0,0" />
+                        <TextBlock Name="RestoreStatusText" Text="System Protection must be enabled on the Windows drive." Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,12,0,0" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="22" Margin="9,0,0,0" Background="{StaticResource HeroGradient}">
+                      <StackPanel>
+                        <TextBlock Text="WHY CHECKPOINTS MATTER" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" />
+                        <TextBlock Text="Every Optimal write requires one." FontSize="18" FontWeight="SemiBold" Margin="0,12,0,0" />
+                        <TextBlock Text="✓  Protects system configuration" Margin="0,20,0,0" />
+                        <TextBlock Text="✓  Created before apply or undo" Margin="0,12,0,0" />
+                        <TextBlock Text="✓  Paired with exact run backups" Margin="0,12,0,0" />
+                        <TextBlock Text="Restore points do not replace a file backup." Foreground="{StaticResource WarningBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,20,0,0" />
+                      </StackPanel>
+                    </Border>
+                  </Grid>
+                  <Grid Margin="0,28,0,12">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                      <TextBlock Text="OPTIMAL RESTORE CATALOG" FontSize="18" FontWeight="SemiBold" />
+                      <TextBlock Text="Each card is a journaled run with captured pre-change state." Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,5,0,0" />
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="Open Windows System Restore" Tag="rstrui.exe" Style="{StaticResource SecondaryButton}" Click="OpenWindowsTool_Click" />
+                  </Grid>
+                  <ItemsControl ItemsSource="{Binding HistoryRows}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}" Width="286" Padding="18" Margin="0,0,12,12">
+                          <StackPanel>
+                            <Border Height="5" CornerRadius="3" Background="{StaticResource AccentGradient}" Margin="-18,-18,-18,14" />
+                            <TextBlock FontSize="16" FontWeight="SemiBold" Text="{Binding Title}" />
+                            <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,7,0,0" Text="{Binding Date}" />
+                            <TextBlock Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,14,0,14" Text="{Binding Summary}" />
+                            <Button Content="Restore captured state" Style="{StaticResource SecondaryButton}" Tag="{Binding Record}" IsEnabled="{Binding CanRevert}" Click="UndoRun_Click" />
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="SystemPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="870" Margin="48,38">
+                <StackPanel>
+                  <TextBlock Text="THIS PC" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Know what Optimal sees." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="Machine gates prevent incompatible tweaks from reaching execution." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,28" />
+                  <UniformGrid Columns="2">
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,10,10">
+                      <StackPanel>
+                        <TextBlock Text="WINDOWS" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="SystemOsText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="10,0,0,10">
+                      <StackPanel>
+                        <TextBlock Text="PROCESSOR" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="SystemCpuText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,10,10,0">
+                      <StackPanel>
+                        <TextBlock Text="GRAPHICS" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="SystemGpuText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="10,10,0,0">
+                      <StackPanel>
+                        <TextBlock Text="MEMORY + STORAGE" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                        <TextBlock Name="SystemMemoryText" Text="Scanning…" FontSize="17" FontWeight="SemiBold" Margin="0,8,0,0" TextWrapping="Wrap" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Grid Name="AboutPage" Visibility="Collapsed">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <Grid MaxWidth="900" Margin="44,34">
+                <StackPanel>
+                  <TextBlock Text="ABOUT OPTIMAL" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Bold" />
+                  <TextBlock Text="Transparent tuning, built to be undone." FontSize="30" FontWeight="SemiBold" Margin="0,7,0,0" />
+                  <TextBlock Text="A Windows control center that explains the effect, evidence, tradeoff, and reversal before it writes anything." Foreground="{StaticResource MutedBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,8,0,0" />
+                  <Grid Margin="0,26,0,0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1.25*" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource CardStyle}" Padding="26" Margin="0,0,9,0" Background="{StaticResource HeroGradient}">
+                      <StackPanel>
+                        <Image Source="Assets/OptimalLogo.png" Width="190" Height="86" Stretch="Uniform" HorizontalAlignment="Left" RenderOptions.BitmapScalingMode="HighQuality" />
+                        <TextBlock Text="Version 1.0 stable" Foreground="{StaticResource SuccessBrush}" FontSize="10" FontWeight="Bold" Margin="0,20,0,0" />
+                        <TextBlock Text="Every manifest is validated, current state is detected, and a fresh restore point plus exact undo journal is required for each write. Nothing is selected or applied automatically." Foreground="#C5CFDC" FontSize="12" TextWrapping="Wrap" LineHeight="19" Margin="0,10,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="24" Margin="9,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource AccentBrush}" FontSize="26" />
+                        <TextBlock Text="Join our Discord" FontSize="19" FontWeight="SemiBold" Margin="0,16,0,0" />
+                        <TextBlock Text="Get release updates, share hardware results, request controls, and help test premium features." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" LineHeight="18" Margin="0,8,0,18" />
+                        <StackPanel Orientation="Horizontal">
+                          <Button Content="Open Discord  →" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Left" Click="OpenDiscord_Click" />
+                          <Button Content="Replay onboarding" Style="{StaticResource SecondaryButton}" HorizontalAlignment="Left" Margin="10,0,0,0" Click="ReplayOnboarding_Click" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Border>
+                  </Grid>
+                  <TextBlock Text="PREMIUM ROADMAP" Foreground="{StaticResource PurpleBrush}" FontSize="10" FontWeight="Bold" Margin="0,28,0,10" />
+                  <UniformGrid Columns="3">
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="0,0,7,0">
+                      <StackPanel>
+                        <TextBlock Text="Hardware profiles" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="Deeper CPU/GPU-specific recommendations with measured baselines and profile exports." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        <TextBlock Text="PLANNED" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" Margin="0,16,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="7,0">
+                      <StackPanel>
+                        <TextBlock Text="Automation schedules" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="Maintenance routines with previewable targets, storage estimates, and exact run history." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        <TextBlock Text="PLANNED" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" Margin="0,16,0,0" />
+                      </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource CardStyle}" Padding="20" Margin="7,0,0,0">
+                      <StackPanel>
+                        <TextBlock Text="Saved game setups" FontSize="16" FontWeight="SemiBold" />
+                        <TextBlock Text="Reusable per-game Windows, NVIDIA, power, and software plans with one-click reversal." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        <TextBlock Text="PLANNED" Foreground="{StaticResource AccentBrush}" FontSize="9" FontWeight="Bold" Margin="0,16,0,0" />
+                      </StackPanel>
+                    </Border>
+                  </UniformGrid>
+                  <Border Background="#101925" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="15" Margin="0,20,0,0">
+                    <TextBlock Text="Privacy: settings, backups, and run history stay on this PC. Optimal has no account requirement and contains no personal branding." Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap" />
+                  </Border>
+                </StackPanel>
+              </Grid>
+            </ScrollViewer>
+          </Grid>
+          <Border Name="LoadingVeil" Background="#F2080B12" Visibility="Visible">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Grid Width="96" Height="96">
+                <Ellipse Stroke="#202A43" StrokeThickness="3" />
+                <Ellipse Stroke="{StaticResource AccentBrush}" StrokeThickness="3" StrokeDashArray="2 5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" RenderTransformOrigin="0.5,0.5">
+                  <UIElement.RenderTransform>
+                    <RotateTransform />
+                  </UIElement.RenderTransform>
+                  <FrameworkElement.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                      <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                          <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:1.45" />
+                        </Storyboard>
+                      </BeginStoryboard>
+                    </EventTrigger>
+                  </FrameworkElement.Triggers>
+                </Ellipse>
+                <Ellipse Width="66" Height="66" Stroke="{StaticResource PurpleBrush}" StrokeThickness="2" StrokeDashArray="1 6" RenderTransformOrigin="0.5,0.5" Opacity="0.72">
+                  <UIElement.RenderTransform>
+                    <RotateTransform />
+                  </UIElement.RenderTransform>
+                  <FrameworkElement.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                      <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                          <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="360" To="0" Duration="0:0:2.1" />
+                        </Storyboard>
+                      </BeginStoryboard>
+                    </EventTrigger>
+                  </FrameworkElement.Triggers>
+                </Ellipse>
+                <Image Source="Assets/Optimal Symbol.png" Width="46" Height="46" Stretch="Uniform" RenderOptions.BitmapScalingMode="HighQuality" />
+              </Grid>
+              <TextBlock Text="OPTIMAL ENGINE" FontSize="10" FontWeight="Bold" Foreground="{StaticResource AccentBrush}" Margin="0,22,0,0" HorizontalAlignment="Center" />
+              <TextBlock Name="LoadingText" Text="Profiling this PC and validating manifests…" Foreground="{StaticResource MutedBrush}" Margin="0,8,0,0" HorizontalAlignment="Center" />
+            </StackPanel>
+          </Border>
+        </Grid>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

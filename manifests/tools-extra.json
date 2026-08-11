@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "apps.windhawk.install", "name": "Install Windhawk", "category": "apps", "tier": "situational",
+      "description": "Installs Windhawk's Windows customization marketplace through WinGet.", "impact": "Adds opt-in shell and application mods managed by Windhawk.",
+      "tradeoff": "Windhawk mods use process injection and hooking. Review every mod, author, source, and compatibility note before enabling it.",
+      "source": "https://github.com/ramensoftware/windhawk", "detect": [{"type":"winget","packageId":"RamenSoftware.Windhawk","installed":true}],
+      "apply": [{"type":"winget","action":"install","packageId":"RamenSoftware.Windhawk"}],
+      "revert": [{"type":"winget","action":"uninstall","packageId":"RamenSoftware.Windhawk"}], "reboot": false
+    },
+    {
+      "id": "apps.crystaldiskinfo.install", "name": "Install CrystalDiskInfo", "category": "apps", "tier": "verified",
+      "description": "Installs CrystalDiskInfo for SMART drive-health and temperature diagnosis.", "impact": "Adds read-only disk health visibility for SSDs and hard drives.",
+      "source": "https://crystalmark.info/en/software/crystaldiskinfo/", "detect": [{"type":"winget","packageId":"CrystalDewWorld.CrystalDiskInfo","installed":true}],
+      "apply": [{"type":"winget","action":"install","packageId":"CrystalDewWorld.CrystalDiskInfo"}],
+      "revert": [{"type":"winget","action":"uninstall","packageId":"CrystalDewWorld.CrystalDiskInfo"}], "reboot": false
+    },
+    {
+      "id": "apps.hwmonitor.install", "name": "Install HWMonitor", "category": "apps", "tier": "situational",
+      "description": "Installs HWMonitor for CPU, GPU, motherboard, fan, voltage, and temperature monitoring.", "impact": "Adds hardware sensor diagnosis without changing clocks or fan curves.",
+      "tradeoff": "Sensor polling adds a small amount of overhead while the application is running.",
+      "source": "https://www.cpuid.com/softwares/hwmonitor.html", "detect": [{"type":"winget","packageId":"CPUID.HWMonitor","installed":true}],
+      "apply": [{"type":"winget","action":"install","packageId":"CPUID.HWMonitor"}],
+      "revert": [{"type":"winget","action":"uninstall","packageId":"CPUID.HWMonitor"}], "reboot": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+# Build output and local recovery files
+**/bin/
+**/obj/
+artifacts/
+release-output/
+.recovery/
+.recovery-tools/
+.recovery-tools10/
+
+# Website is maintained separately and is never published with this repository
+site/
+
+# Local research copies are not part of the release source
+reference/
+
+# IDE and operating system files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.cache
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# Local installer output
+installer/Output/

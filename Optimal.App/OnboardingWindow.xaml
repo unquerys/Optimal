@@ -1,0 +1,302 @@
+<Window x:Class="Optimal.App.OnboardingWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Welcome to Optimal" Width="900" Height="650" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" WindowStyle="None" AllowsTransparency="True" Background="#00FFFFFF" ShowInTaskbar="False" Icon="Assets/Optimal Symbol.png" UseLayoutRounding="True" SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display" TextOptions.TextHintingMode="Fixed" TextOptions.TextRenderingMode="ClearType" xmlns:app="clr-namespace:Optimal.App;assembly=Optimal">
+  <Border Background="{StaticResource CanvasBrush}" BorderBrush="#314056" BorderThickness="1" CornerRadius="20">
+    <Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="7" />
+        <RowDefinition Height="82" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="82" />
+      </Grid.RowDefinitions>
+      <Border Background="{StaticResource AccentGradient}" CornerRadius="20,20,0,0" />
+      <Grid Row="1" Margin="42,0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="44" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Image Source="Assets/Optimal Symbol.png" Width="36" Height="36" Margin="0,0,13,0" />
+          <StackPanel>
+            <TextBlock Text="OPTIMAL SETUP" FontWeight="Bold" />
+            <TextBlock Name="StepCaption" Text="Recommended setup" Foreground="{StaticResource MutedBrush}" FontSize="10" Margin="0,3,0,0" />
+          </StackPanel>
+        </StackPanel>
+        <TextBlock Name="StepCounter" Grid.Column="1" Text="01 / 07" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,8,0" />
+        <Button Grid.Column="2" Content="" FontFamily="Segoe Fluent Icons" FontSize="11" Style="{StaticResource GhostButton}" ToolTip="Close and configure manually" Click="Manual_Click" />
+      </Grid>
+      <Grid Name="StepHost" Row="2" Margin="54,8,54,18">
+        <StackPanel Name="ConsentStep">
+          <TextBlock Text="HARDWARE-GUIDED SETUP" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" FontSize="10" />
+          <TextBlock Text="Would you like Optimal to build recommended settings for this computer?" FontSize="32" FontWeight="SemiBold" TextWrapping="Wrap" LineHeight="40" Margin="0,10,0,0" />
+          <TextBlock Text="Optimal will use the detected CPU, GPU, memory, storage, and device type to prepare a reviewable plan. Nothing is applied during onboarding." Foreground="{StaticResource MutedBrush}" FontSize="14" TextWrapping="Wrap" LineHeight="21" Margin="0,12,0,24" />
+          <Border Style="{StaticResource CardStyle}" Background="{StaticResource HeroGradient}" Padding="22">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="68" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Width="52" Height="52" CornerRadius="15" Background="{StaticResource AccentDarkBrush}">
+                <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource AccentBrush}" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1">
+                <TextBlock Text="Read-only hardware scan complete" FontSize="18" FontWeight="SemiBold" />
+                <TextBlock Text="You will still review every recommended tweak and choose all optional software yourself." Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+              </StackPanel>
+            </Grid>
+          </Border>
+          <UniformGrid Columns="2" Margin="0,22,0,0">
+            <Button Content="Yes, build my recommended plan  →" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Padding="20,14" Click="ProceedRecommended_Click" />
+            <Button Content="No, I’ll configure it myself" Style="{StaticResource SecondaryButton}" Margin="8,0,0,0" Padding="20,14" Click="Manual_Click" />
+          </UniformGrid>
+          <TextBlock Text="You can close onboarding now and use every section manually." Foreground="{StaticResource MutedBrush}" FontSize="10" HorizontalAlignment="Center" Margin="0,16,0,0" />
+        </StackPanel>
+        <StackPanel Name="ProfileStep" Visibility="Collapsed">
+          <TextBlock Text="BUILD YOUR OPTIMAL PROFILE" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" FontSize="10" />
+          <TextBlock Text="What should this PC prioritize?" FontSize="34" FontWeight="SemiBold" Margin="0,10,0,0" />
+          <TextBlock Text="This only prepares a reviewable plan. Nothing is installed, removed, or changed during setup." Foreground="{StaticResource MutedBrush}" FontSize="14" Margin="0,10,0,24" />
+          <UniformGrid Columns="2">
+            <Button Name="GamingProfileButton" Tag="gaming" Style="{StaticResource SecondaryButton}" Margin="0,0,8,8" Padding="20" Click="Profile_Click">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="48" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="38" Height="38" CornerRadius="10" Background="#2A2149">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource PurpleBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                  <TextBlock Text="GAMING" Foreground="{StaticResource PurpleBrush}" FontWeight="Bold" />
+                  <TextBlock Text="Lower latency, stable frame pacing, power, and hardware-matched graphics controls." TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+              </Grid>
+            </Button>
+            <Button Name="BalancedProfileButton" Tag="balanced" Style="{StaticResource SecondaryButton}" Margin="8,0,0,8" Padding="20" Click="Profile_Click">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="48" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="38" Height="38" CornerRadius="10" Background="#17382F">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource SuccessBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                  <TextBlock Text="BALANCED" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" />
+                  <TextBlock Text="Reliable daily-use improvements without aggressive feature removal." TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+              </Grid>
+            </Button>
+            <Button Name="PrivacyProfileButton" Tag="privacy" Style="{StaticResource SecondaryButton}" Margin="0,8,8,0" Padding="20" Click="Profile_Click">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="48" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="38" Height="38" CornerRadius="10" Background="#182B4A">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource AccentBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                  <TextBlock Text="PRIVACY" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" />
+                  <TextBlock Text="Reduce telemetry, suggestions, tracking, AI integrations, and background noise." TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+              </Grid>
+            </Button>
+            <Button Name="MinimalProfileButton" Tag="minimal" Style="{StaticResource SecondaryButton}" Margin="8,8,0,0" Padding="20" Click="Profile_Click">
+              <Grid>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="48" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Width="38" Height="38" CornerRadius="10" Background="#3A301B">
+                  <TextBlock Text="" FontFamily="Segoe Fluent Icons" Foreground="{StaticResource WarningBrush}" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Left">
+                  <TextBlock Text="MINIMAL" Foreground="{StaticResource WarningBrush}" FontWeight="Bold" />
+                  <TextBlock Text="Only the safest verified quality-of-life and system controls." TextWrapping="Wrap" Margin="0,6,0,0" />
+                </StackPanel>
+              </Grid>
+            </Button>
+          </UniformGrid>
+          <TextBlock Name="ProfileSelectionText" Text="Select one profile to continue" Foreground="{StaticResource MutedBrush}" HorizontalAlignment="Center" Margin="0,18,0,0" />
+        </StackPanel>
+        <StackPanel Name="HardwareStep" Visibility="Collapsed">
+          <TextBlock Text="HARDWARE MATCH" Foreground="{StaticResource PurpleBrush}" FontWeight="Bold" FontSize="10" />
+          <TextBlock Text="Recommendations for this machine." FontSize="34" FontWeight="SemiBold" Margin="0,10,0,0" />
+          <UniformGrid Columns="2" Margin="0,24,0,0">
+            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="0,0,8,8">
+              <StackPanel>
+                <TextBlock Text="PROCESSOR" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                <TextBlock Name="HardwareCpuText" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" />
+              </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CardStyle}" Padding="22" Margin="8,0,0,8">
+              <StackPanel>
+                <TextBlock Text="GRAPHICS" Foreground="{StaticResource MutedBrush}" FontSize="9" />
+                <TextBlock Name="HardwareGpuText" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,10,0,0" />
+              </StackPanel>
+            </Border>
+          </UniformGrid>
+          <Border Style="{StaticResource CardStyle}" Background="{StaticResource HeroGradient}" Padding="22" Margin="0,10,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Width="54" Height="54" CornerRadius="14" Background="#76B900">
+                <TextBlock Text="GPU" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              </Border>
+              <StackPanel Grid.Column="1" Margin="18,0,0,0">
+                <TextBlock Name="HardwareRecommendationTitle" FontSize="19" FontWeight="SemiBold" />
+                <TextBlock Name="HardwareRecommendationText" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,7,0,0" />
+              </StackPanel>
+            </Grid>
+          </Border>
+        </StackPanel>
+        <Grid Name="TweaksStep" Visibility="Collapsed">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <StackPanel>
+            <TextBlock Text="REVIEW TWEAKS" Foreground="{StaticResource AccentBrush}" FontWeight="Bold" FontSize="10" />
+            <TextBlock Text="Tune the profile before it becomes a plan." FontSize="30" FontWeight="SemiBold" Margin="0,8,0,0" />
+            <TextBlock Text="Every recommendation can be unchecked here." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,18" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding TweakChoices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,13">
+                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}">
+                      <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                        <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" Text="{Binding Detail}" />
+                      </StackPanel>
+                    </CheckBox>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+        <Grid Name="DebloatStep" Visibility="Collapsed">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <StackPanel>
+            <TextBlock Text="DEBLOAT &amp; PRIVACY" Foreground="{StaticResource WarningBrush}" FontWeight="Bold" FontSize="10" />
+            <TextBlock Text="Remove the consumer extras, not Windows." FontSize="30" FontWeight="SemiBold" Margin="0,8,0,0" />
+            <TextBlock Text="A conservative baseline is included for every profile. Review every item; telemetry limiting is separate and nothing runs during setup." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,18" TextWrapping="Wrap" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding DebloatChoices}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="4,11">
+                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}">
+                      <StackPanel>
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                        <TextBlock Foreground="{StaticResource MutedBrush}" FontSize="10" TextWrapping="Wrap" Margin="0,4,0,0" Text="{Binding Detail}" />
+                      </StackPanel>
+                    </CheckBox>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+        <Grid Name="SoftwareStep" Visibility="Collapsed">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <StackPanel>
+            <TextBlock Text="SOFTWARE" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" FontSize="10" />
+            <TextBlock Text="Choose what you want installed." FontSize="30" FontWeight="SemiBold" Margin="0,8,0,0" />
+            <TextBlock Text="All software starts unchecked and uses an exact WinGet package ID." Foreground="{StaticResource MutedBrush}" Margin="0,8,0,18" />
+          </StackPanel>
+          <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding SoftwareChoices}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <WrapPanel />
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <Border Style="{StaticResource CardStyle}" Width="370" Padding="16" Margin="0,0,10,10">
+                    <Grid>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="44" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                      </Grid.ColumnDefinitions>
+                      <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource AccentDarkBrush}">
+                        <TextBlock Foreground="{StaticResource AccentBrush}" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Text="{Binding Glyph}" />
+                      </Border>
+                      <StackPanel Grid.Column="1" Margin="10,0">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding Name}" />
+                        <TextBlock Text="WinGet verified ID" Foreground="{StaticResource MutedBrush}" FontSize="9" Margin="0,4,0,0" />
+                      </StackPanel>
+                      <CheckBox Grid.Column="2" Style="{StaticResource ToggleStyle}" IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+        </Grid>
+        <StackPanel Name="SafetyStep" Visibility="Collapsed">
+          <TextBlock Text="SAFETY CHECK" Foreground="{StaticResource SuccessBrush}" FontWeight="Bold" FontSize="10" />
+          <TextBlock Text="Your plan is ready for review." FontSize="34" FontWeight="SemiBold" Margin="0,10,0,0" />
+          <TextBlock Text="When you press Apply in Optimal, the first stage creates a fresh restore point. If Windows cannot create it, the entire run stops before any tweak, debloat, profile, or install executes." Foreground="{StaticResource MutedBrush}" FontSize="14" TextWrapping="Wrap" LineHeight="22" Margin="0,12,0,0" />
+          <Border Style="{StaticResource CardStyle}" Background="{StaticResource HeroGradient}" Padding="28" Margin="0,28,0,0">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Grid Width="88" Height="88">
+                <Ellipse Stroke="#2A3546" StrokeThickness="4" />
+                <Ellipse Stroke="{StaticResource AccentBrush}" StrokeThickness="4" StrokeDashArray="2 4" RenderTransformOrigin="0.5,0.5">
+                  <UIElement.RenderTransform>
+                    <RotateTransform />
+                  </UIElement.RenderTransform>
+                  <FrameworkElement.Triggers>
+                    <EventTrigger RoutedEvent="Loaded">
+                      <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                          <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" From="0" To="360" Duration="0:0:1.5" />
+                        </Storyboard>
+                      </BeginStoryboard>
+                    </EventTrigger>
+                  </FrameworkElement.Triggers>
+                </Ellipse>
+                <Image Source="Assets/Optimal Symbol.png" Width="42" Height="42" />
+              </Grid>
+              <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="Restore guarded execution" FontSize="20" FontWeight="SemiBold" />
+                <TextBlock Text="Review → confirm → restore point → backups → changes → journal" Foreground="{StaticResource AccentBrush}" FontSize="11" Margin="0,8,0,0" />
+                <TextBlock Text="Nothing has run yet." Foreground="{StaticResource WarningBrush}" Margin="0,10,0,0" />
+              </StackPanel>
+            </Grid>
+          </Border>
+        </StackPanel>
+      </Grid>
+      <Grid Row="3" Margin="54,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Ellipse Name="Dot1" Width="7" Height="7" Fill="{StaticResource AccentBrush}" />
+          <Ellipse Name="Dot2" Width="7" Height="7" Fill="#344258" Margin="8,0,0,0" />
+          <Ellipse Name="Dot3" Width="7" Height="7" Fill="#344258" Margin="8,0,0,0" />
+          <Ellipse Name="Dot4" Width="7" Height="7" Fill="#344258" Margin="8,0,0,0" />
+          <Ellipse Name="Dot5" Width="7" Height="7" Fill="#344258" Margin="8,0,0,0" />
+          <Ellipse Name="Dot6" Width="7" Height="7" Fill="#344258" Margin="8,0,0,0" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Button Name="BackButton" Content="Back" Style="{StaticResource GhostButton}" Visibility="Collapsed" Margin="0,0,8,0" Click="Back_Click" />
+          <Button Name="NextButton" Content="Continue  →" Style="{StaticResource PrimaryButton}" IsEnabled="False" Visibility="Collapsed" Click="Next_Click" />
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ArrayOfProfile>
+  <Profile>
+    <ProfileName>Base Profile</ProfileName>
+    <Executeables />
+    <Settings>
+      <ProfileSetting><SettingNameInfo>Low Latency Mode</SettingNameInfo><SettingID>390467</SettingID><SettingValue>1</SettingValue><ValueType>Dword</ValueType></ProfileSetting>
+      <ProfileSetting><SettingNameInfo>Preferred refresh rate</SettingNameInfo><SettingID>6600001</SettingID><SettingValue>1</SettingValue><ValueType>Dword</ValueType></ProfileSetting>
+    </Settings>
+  </Profile>
+</ArrayOfProfile>

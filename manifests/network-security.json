@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "tweaks": [
+    {
+      "id": "network.llmnr.disable", "name": "Disable LLMNR name resolution", "category": "network", "tier": "situational", "audience": "advanced",
+      "description": "Disables multicast LLMNR fallback after normal DNS resolution fails.",
+      "impact": "Reduces exposure to local-network name-resolution spoofing.",
+      "tradeoff": "Very old local-device discovery workflows that depend on LLMNR may stop resolving names.",
+      "source": "https://learn.microsoft.com/windows/client-management/mdm/policy-csp-admx-dnsclient#enablemulticast",
+      "detect": [{ "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient", "name": "EnableMulticast", "equals": 0 }],
+      "apply": [{ "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient", "name": "EnableMulticast", "valueType": "dword", "value": 0 }],
+      "revert": [{ "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient", "name": "EnableMulticast" }], "reboot": true
+    },
+    {
+      "id": "network.smb.insecure-guest.disable", "name": "Block insecure SMB guest logons", "category": "network", "tier": "situational", "audience": "advanced",
+      "description": "Prevents unauthenticated SMB guest access from this PC.",
+      "impact": "Keeps SMB authentication protections enabled on untrusted networks.",
+      "tradeoff": "Old NAS devices and shares that only support guest access may stop connecting.",
+      "source": "https://learn.microsoft.com/windows-server/storage/file-server/enable-insecure-guest-logons-smb2-and-smb3",
+      "detect": [{ "type": "registry", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LanmanWorkstation", "name": "AllowInsecureGuestAuth", "equals": 0 }],
+      "apply": [{ "type": "registry", "action": "set", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LanmanWorkstation", "name": "AllowInsecureGuestAuth", "valueType": "dword", "value": 0 }],
+      "revert": [{ "type": "registry", "action": "delete", "path": "HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\LanmanWorkstation", "name": "AllowInsecureGuestAuth" }], "reboot": true
+    },
+    {
+      "id": "network.smb.signing.require", "name": "Require SMB client signing", "category": "network", "tier": "aggressive", "audience": "advanced",
+      "description": "Requires outbound SMB sessions to use signing rather than accepting unsigned file-sharing traffic.",
+      "impact": "Protects SMB traffic integrity against tampering and relay scenarios.",
+      "tradeoff": "Legacy file servers that cannot sign SMB traffic will become unreachable and signing can add overhead.",
+      "source": "https://learn.microsoft.com/windows-server/storage/file-server/smb-signing-overview",
+      "detect": [{ "type": "registry", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters", "name": "RequireSecuritySignature", "equals": 1 }],
+      "apply": [{ "type": "registry", "action": "set", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters", "name": "RequireSecuritySignature", "valueType": "dword", "value": 1 }],
+      "revert": [{ "type": "registry", "action": "delete", "path": "HKLM\\SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters", "name": "RequireSecuritySignature" }], "reboot": true
+    }
+  ]
+}
