@@ -10,7 +10,7 @@
   <a href="https://github.com/unquerys/Optimal/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/unquerys/Optimal?style=flat-square&color=6d70ff"></a>
   <a href="https://github.com/unquerys/Optimal/actions/workflows/release.yml"><img alt="Release build" src="https://img.shields.io/github/actions/workflow/status/unquerys/Optimal/release.yml?style=flat-square&label=release"></a>
   <img alt="Windows 11 x64" src="https://img.shields.io/badge/Windows-11%20x64-4f7cff?style=flat-square">
-  <img alt="Version 1.0.1" src="https://img.shields.io/badge/version-1.0.1-65d6a6?style=flat-square">
+  <img alt="Version 1.0.2" src="https://img.shields.io/badge/version-1.0.2-65d6a6?style=flat-square">
 </p>
 
 ## Install
@@ -91,7 +91,7 @@ Release files are written to `artifacts`. The release script builds a self-conta
 - [Manifest format](docs/manifest-format.md)
 - [Safety layer](docs/safety-layer.md)
 - [Optimization research](docs/optimization-research.md)
-- [Optimal 1.0.1 release notes](docs/release-notes-v1.0.1.md)
+- [Optimal 1.0.2 release notes](docs/release-notes-v1.0.2.md)
 
 ## Community and support
 

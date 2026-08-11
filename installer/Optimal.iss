@@ -1,5 +1,5 @@
 #define MyAppName "Optimal"
-#define MyAppVersion "1.0.1"
+#define MyAppVersion "1.0.2"
 #define MyAppPublisher "Optimal"
 #define MyAppExeName "Optimal.exe"
 #ifndef PackageDir
@@ -12,7 +12,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-VersionInfoVersion=1.0.1.0
+VersionInfoVersion=1.0.2.0
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription=Optimal Windows tuning utility installer
 VersionInfoProductName={#MyAppName}

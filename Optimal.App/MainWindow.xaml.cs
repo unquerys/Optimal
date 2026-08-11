@@ -112,6 +112,10 @@ public partial class MainWindow : Window
 			_metricsTimer.Stop();
 			_lifetime.Cancel();
 		};
+		base.Closed += delegate
+		{
+			Application.Current.Shutdown();
+		};
 	}
 
 	private async void Window_Loaded(object sender, RoutedEventArgs e)
