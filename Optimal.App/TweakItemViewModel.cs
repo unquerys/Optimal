@@ -15,6 +15,8 @@ public sealed class TweakItemViewModel : INotifyPropertyChanged
 
 	private Brush _stateBrush = Brushes.SlateGray;
 
+	private bool _isExpanded;
+
 	public TweakDefinition Definition { get; }
 
 	public Action SelectionChanged { get; }
@@ -185,6 +187,18 @@ public sealed class TweakItemViewModel : INotifyPropertyChanged
 			}
 		}
 	}
+
+	public bool IsExpanded
+	{
+		get => _isExpanded;
+		set
+		{
+			if (Set(ref _isExpanded, value, nameof(IsExpanded)))
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DetailsLabel)));
+		}
+	}
+
+	public string DetailsLabel => IsExpanded ? "LESS" : "DETAILS";
 
 	public string State
 	{

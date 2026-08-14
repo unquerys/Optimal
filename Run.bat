@@ -3,11 +3,6 @@ setlocal
 title Optimal Launcher
 set "ROOT=%~dp0"
 
-if exist "%ROOT%artifacts\package\Optimal.exe" (
-  "%ROOT%artifacts\package\Optimal.exe" --onboarding
-  exit /b %errorlevel%
-)
-
 where dotnet.exe >nul 2>nul
 if errorlevel 1 (
   echo.
@@ -19,10 +14,11 @@ if errorlevel 1 (
   exit /b 1
 )
 
-dotnet run --project "%ROOT%Optimal.App\Optimal.App.csproj" -c Release -- --onboarding
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%ROOT%Run-Optimal.ps1"
 if errorlevel 1 (
   echo.
-  echo Optimal failed to build or start. Review the error above.
+  echo Optimal failed to build or start.
+  echo Review .logs\launcher.log and %%LOCALAPPDATA%%\Optimal\logs\startup.log.
   pause
   exit /b 1
 )

@@ -16,6 +16,7 @@
     <Resource Include="..\Optimal Symbol.png" Link="Assets\Optimal Symbol.png" />
     <Resource Include="..\OptimalLogo.png" Link="Assets\OptimalLogo.png" />
     <Resource Include="Assets\Software\*.png" />
+    <Resource Include="Assets\Games\*.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\manifests\*.json" Link="manifests\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />

@@ -10,7 +10,7 @@
   <a href="https://github.com/unquerys/Optimal/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/unquerys/Optimal?style=flat-square&color=6d70ff"></a>
   <a href="https://github.com/unquerys/Optimal/actions/workflows/release.yml"><img alt="Release build" src="https://img.shields.io/github/actions/workflow/status/unquerys/Optimal/release.yml?style=flat-square&label=release"></a>
   <img alt="Windows 11 x64" src="https://img.shields.io/badge/Windows-11%20x64-4f7cff?style=flat-square">
-  <img alt="Version 1.0.2" src="https://img.shields.io/badge/version-1.0.2-65d6a6?style=flat-square">
+  <img alt="Version 1.0.3" src="https://img.shields.io/badge/version-1.0.3-65d6a6?style=flat-square">
 </p>
 
 ## Install
@@ -37,14 +37,21 @@ You can also download one of these files from the [latest release](https://githu
 
 Windows SmartScreen may show a warning because the current binaries are not code-signed. Verify the SHA-256 file from the same GitHub Release before running a download.
 
+Both GitHub `.exe` downloads carry an embedded Windows administrator manifest, so opening either one requests UAC automatically. The setup download is recommended because it keeps the elevation path consistent through install and launch; users should never need to right-click **Run as administrator**.
+
 ## What Optimal includes
 
-- 74 validated controls across privacy, debloat, Windows behavior, gaming, NVIDIA profiles, power, networking, maintenance, software, and repair categories.
+- 90 validated controls across privacy, detected-app debloat, Windows behavior, gaming, NVIDIA profiles, power, networking, maintenance, software, and repair categories.
+- A smart current-user package scan that shows only installed matches from a reviewed optional-app catalog, never auto-selects removals, and uses the normal preview, restore-point, backup, and undo pipeline.
+- An offline game library with 18 competitive and AAA profiles, real cover artwork, hardware-aware targets, copyable in-game settings, and reversible Windows/driver profile selection.
+- Adapter, DNS, TCP/IP, link, gateway, MTU, latency, jitter, and packet-loss diagnostics, with explicit guidance for QoS and hardware-latency workflows.
 - Hardware detection for CPU, GPU, storage type, Windows build, laptop state, and supported feature capabilities.
 - Simple and advanced catalog modes, search, categories, explanations, warnings, and detected current state.
 - Guided onboarding that builds a reviewable plan from detected hardware and your selected profile.
 - A fresh restore point before every applied plan, registry backups, operation backups, a run journal, and supported reverts.
 - No background optimization and no automatic changes at startup. Nothing runs until you review and confirm it in the UI.
+
+Optimal intentionally excludes placebo or dangerous blanket presets: forced MTU, universal TCP registry packs, the QoS "20% bandwidth" myth, indiscriminate service disabling, repeated cache/prefetch purges, HPET/BCD timer recipes, silent MSI-mode changes, and automatic voltage, clock, RAM-timing, VBIOS, or firmware writes.
 
 ## Safety model
 
@@ -91,7 +98,7 @@ Release files are written to `artifacts`. The release script builds a self-conta
 - [Manifest format](docs/manifest-format.md)
 - [Safety layer](docs/safety-layer.md)
 - [Optimization research](docs/optimization-research.md)
-- [Optimal 1.0.2 release notes](docs/release-notes-v1.0.2.md)
+- [Optimal 1.0.3 release notes](docs/release-notes-v1.0.3.md)
 
 ## Community and support
 

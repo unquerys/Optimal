@@ -1,5 +1,5 @@
 #define MyAppName "Optimal"
-#define MyAppVersion "1.0.2"
+#define MyAppVersion "1.0.3"
 #define MyAppPublisher "Optimal"
 #define MyAppExeName "Optimal.exe"
 #ifndef PackageDir
@@ -12,7 +12,7 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-VersionInfoVersion=1.0.2.0
+VersionInfoVersion=1.0.3.0
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription=Optimal Windows tuning utility installer
 VersionInfoProductName={#MyAppName}
@@ -32,7 +32,6 @@ SolidCompression=yes
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=admin
-PrivilegesRequiredOverridesAllowed=dialog
 WizardStyle=modern
 WizardSizePercent=125
 DisableWelcomePage=no
@@ -59,17 +58,17 @@ Filename: "{app}\{#MyAppExeName}"; Parameters: "--onboarding"; Description: "Ope
 
 [Code]
 const
-  CanvasColor = $00120B08;
-  SidebarColor = $001A100B;
-  SurfaceColor = $00211510;
-  RaisedColor = $002B1D17;
-  BorderColor = $00422E25;
-  TextColor = $00FCF7F6;
-  MutedColor = $00BBA9A0;
-  AccentColor = $00FF8263;
-  AccentDarkColor = $006A3025;
-  PurpleColor = $00E67596;
-  SuccessColor = $00A6D665;
+  CanvasColor = $000E0907;
+  SidebarColor = $00180E0A;
+  SurfaceColor = $001D130E;
+  RaisedColor = $00271B15;
+  BorderColor = $003C2C22;
+  TextColor = $00FBF7F4;
+  MutedColor = $00AA988B;
+  AccentColor = $00FF9C7C;
+  AccentDarkColor = $004A2517;
+  PurpleColor = $00FF7CAA;
+  SuccessColor = $00B3E35E;
 
 var
   ShellPanel, SidebarPanel, ContentPanel, FooterPanel, TopAccent: TPanel;
@@ -299,8 +298,8 @@ begin
   for I := 0 to 4 do
     StepLabels[I] := MakeLabel(SidebarPanel, '○  ' + StepNames[I], 25, 124 + (I * 38), 145, 24, 10, MutedColor, False);
 
-  MakeLabel(SidebarPanel, '●  ADMIN REQUIRED', 25, 423, 150, 20, 8, SuccessColor, True);
-  MakeLabel(SidebarPanel, 'UAC elevation protects' + #13#10 + 'system-wide changes.', 25, 446, 150, 40, 8, MutedColor, False);
+  MakeLabel(SidebarPanel, '●  VERIFIED ELEVATION', 25, 423, 150, 20, 8, SuccessColor, True);
+  MakeLabel(SidebarPanel, 'Windows will request admin' + #13#10 + 'access automatically.', 25, 446, 150, 40, 8, MutedColor, False);
 
   EyebrowLabel := MakeLabel(ContentPanel, 'WELCOME', 40, 38, 520, 18, 8, AccentColor, True);
   TitleLabel := MakeLabel(ContentPanel, 'Install Optimal.', 40, 68, 540, 46, 24, TextColor, True);
@@ -391,7 +390,7 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   ShellPanel.BringToFront;
   if CurPageID = wpWelcome then
-    ShowCustomPage(0, 'WELCOME', 'Install Optimal.', 'A clean, self-contained setup for the Optimal Windows control center. Nothing is optimized during installation.')
+    ShowCustomPage(0, 'WELCOME', 'Your PC, tuned with intent.', 'Install the self-contained Optimal control center. Setup requests administrator access automatically; no optimizations run during installation.')
   else if CurPageID = wpLicense then
     ShowCustomPage(1, 'TERMS AND SAFETY', 'Review before continuing.', 'Read the safety terms below. Acceptance is required before Optimal can be installed.')
   else if CurPageID = wpSelectDir then

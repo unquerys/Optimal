@@ -45,11 +45,23 @@ public partial class MainWindow : Window
 
 	private readonly CleanupService _cleanup = new CleanupService();
 
+	private readonly DebloatScanService _debloatScanner;
+
 	private readonly SystemMetricsService _metrics = new SystemMetricsService();
 
 	private readonly DispatcherTimer _metricsTimer = new DispatcherTimer
 	{
-		Interval = TimeSpan.FromSeconds(3L)
+		Interval = TimeSpan.FromSeconds(5L)
+	};
+
+	private readonly DispatcherTimer _searchDebounceTimer = new DispatcherTimer
+	{
+		Interval = TimeSpan.FromMilliseconds(140)
+	};
+
+	private readonly DispatcherTimer _gameSearchDebounceTimer = new DispatcherTimer
+	{
+		Interval = TimeSpan.FromMilliseconds(120)
 	};
 
 	private TweakCatalog? _catalog;
@@ -68,11 +80,17 @@ public partial class MainWindow : Window
 
 	private bool _advancedMode;
 
+	private bool _batchSelecting;
+
+	private UIElement? _visiblePage;
+
 	public ObservableCollection<TweakItemViewModel> Tweaks { get; } = new ObservableCollection<TweakItemViewModel>();
 
 	public ObservableCollection<TweakItemViewModel> AppInstallTweaks { get; } = new ObservableCollection<TweakItemViewModel>();
 
 	public ObservableCollection<TweakItemViewModel> DebloatTweaks { get; } = new ObservableCollection<TweakItemViewModel>();
+
+	public ObservableCollection<DebloatScanItem> DebloatScanResults { get; } = new ObservableCollection<DebloatScanItem>();
 
 	public ObservableCollection<TweakItemViewModel> GamingTweaks { get; } = new ObservableCollection<TweakItemViewModel>();
 
@@ -88,6 +106,12 @@ public partial class MainWindow : Window
 
 	public ObservableCollection<HistoryRow> HistoryRows { get; } = new ObservableCollection<HistoryRow>();
 
+	public ObservableCollection<GameProfile> Games { get; } = new ObservableCollection<GameProfile>();
+
+	public ObservableCollection<GameSettingRow> SelectedGameSettings { get; } = new ObservableCollection<GameSettingRow>();
+
+	public ICollectionView GameView { get; }
+
 	public MainWindow()
 	{
 		//IL_0042: Unknown result type (might be due to invalid IL or missing references)
@@ -95,6 +119,7 @@ public partial class MainWindow : Window
 		//IL_0059: Expected O, but got Unknown
 		InitializeComponent();
 		_registry = OperationRegistry.CreateDefault(_process);
+		_debloatScanner = new DebloatScanService(_process);
 		_journal = new RevertJournal(_paths, NullLogger<RevertJournal>.Instance);
 		TweakView = CollectionViewSource.GetDefaultView(Tweaks);
 		TweakView.Filter = FilterTweak;
@@ -102,7 +127,19 @@ public partial class MainWindow : Window
 		GamingView.Filter = FilterGamingTweak;
 		NetworkView = CollectionViewSource.GetDefaultView(NetworkTweaks);
 		NetworkView.Filter = FilterGamingTweak;
+		GameView = CollectionViewSource.GetDefaultView(Games);
+		GameView.Filter = FilterGame;
 		base.DataContext = this;
+		_searchDebounceTimer.Tick += delegate
+		{
+			_searchDebounceTimer.Stop();
+			TweakView.Refresh();
+		};
+		_gameSearchDebounceTimer.Tick += delegate
+		{
+			_gameSearchDebounceTimer.Stop();
+			GameView.Refresh();
+		};
 		_metricsTimer.Tick += async delegate
 		{
 			await RefreshMetricsAsync();
@@ -189,11 +226,8 @@ public partial class MainWindow : Window
 			CategoryFilter.SelectedIndex = 0;
 			PopulateMachineProfile();
 			PopulateDashboard();
-			await RefreshMetricsAsync();
-			_metricsTimer.Start();
-			RefreshNetworkDiagnostics();
+			BuildGameLibrary();
 			UpdateSelection();
-			await RefreshHistoryAsync();
 			UpdateCatalogSummary();
 			EngineDot.Fill = (Brush)FindResource("SuccessBrush");
 			EngineStatusText.Text = "ENGINE READY";
@@ -202,6 +236,12 @@ public partial class MainWindow : Window
 			bool forceOnboarding = Environment.GetCommandLineArgs().Any(argument =>
 				argument.Equals("--onboarding", StringComparison.OrdinalIgnoreCase));
 			ShowOnboarding(forceOnboarding);
+
+			// Non-critical diagnostics load after the shell is interactive.
+			await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+			_metricsTimer.Start();
+			RefreshNetworkDiagnostics();
+			await Task.WhenAll(RefreshMetricsAsync(), RefreshHistoryAsync());
 		}
 		catch (OperationCanceledException)
 		{
@@ -286,6 +326,132 @@ public partial class MainWindow : Window
 		RecommendedGamingButton.Content = (_gamingRecommendation.CanApplyAutomatically ? "Select recommendation" : "No NVIDIA profile");
 		WindhawkButton.Content = ((FindWindhawkExecutable() == null) ? "Get Windhawk" : "Open Windhawk");
 	}
+
+	private void BuildGameLibrary()
+	{
+		Games.Clear();
+		bool highEndGpu = _profile.GpuName.Contains("RTX 40", StringComparison.OrdinalIgnoreCase)
+			|| _profile.GpuName.Contains("RTX 50", StringComparison.OrdinalIgnoreCase)
+			|| _profile.GpuName.Contains("RX 7", StringComparison.OrdinalIgnoreCase)
+			|| _profile.GpuName.Contains("RX 9", StringComparison.OrdinalIgnoreCase);
+		string qualityResolution = highEndGpu ? "2560 x 1440" : "1920 x 1080";
+		string upscaler = _profile.GpuVendor == GpuVendor.Nvidia ? "DLSS Quality" : _profile.GpuVendor == GpuVendor.Amd ? "FSR Quality" : "Native / dynamic";
+
+		AddGame("Counter-Strike 2", "CS2", "Competitive", "TACTICAL FPS", "Maximum clarity and the lowest practical input latency.", "240+ FPS", "Competitive", "#F29B38", "#8D3F24",
+			CompetitiveSettings("Low", "2x MSAA", "Enabled + Boost"));
+		AddGame("VALORANT", "V", "Competitive", "TACTICAL FPS", "Clean visibility with a stable high-refresh frame budget.", "240+ FPS", "Competitive", "#FF5364", "#572A50",
+			CompetitiveSettings("Low", "MSAA 2x", "On + Boost"));
+		AddGame("Fortnite", "FN", "Competitive", "BATTLE ROYALE", "Performance Mode tuned for fights and late-game consistency.", "144–240 FPS", "Performance", "#7B61FF", "#253B91",
+			CompetitiveSettings("Performance Mode", "Off", "On + Boost"));
+		AddGame("Call of Duty: Warzone", "WZ", "Competitive", "BATTLE ROYALE", "Visibility-first settings with streaming and VRAM pressure controlled.", "120–165 FPS", "Balanced", "#69A96B", "#263D2E",
+			QualitySettings(qualityResolution, upscaler, "Low", "Normal"));
+		AddGame("Apex Legends", "APX", "Competitive", "HERO SHOOTER", "A responsive profile designed around a consistent frame-time line.", "144–180 FPS", "Competitive", "#E45D44", "#542A31",
+			CompetitiveSettings("Low", "TSAA", "Enabled + Boost"));
+		AddGame("Cyberpunk 2077", "2077", "AAA", "ACTION RPG", "High-impact visuals balanced against smooth traversal and combat.", highEndGpu ? "90 FPS" : "60 FPS", "High fidelity", "#E8DC35", "#4A3D21",
+			QualitySettings(qualityResolution, upscaler, highEndGpu ? "Medium" : "Off", "High"));
+		AddGame("Red Dead Redemption 2", "RDR2", "AAA", "OPEN WORLD", "Optimized quality settings that avoid the game's costly ultra traps.", "60–90 FPS", "Optimized High", "#D44735", "#40242A",
+			QualitySettings(qualityResolution, upscaler, "Medium", "High"));
+		AddGame("Hogwarts Legacy", "HL", "AAA", "ACTION RPG", "Smooth streaming with conservative ray tracing and texture guidance.", "60–90 FPS", "Balanced", "#9A79D4", "#263A5B",
+			QualitySettings(qualityResolution, upscaler, "Off", _profile.RamGigabytes >= 16 ? "High" : "Medium"));
+		AddGame("Forza Horizon 5", "FH5", "AAA", "RACING", "A crisp, fluid preset that keeps environment detail without spikes.", "90–120 FPS", "Ultra optimized", "#E64E91", "#2B3867",
+			QualitySettings(qualityResolution, upscaler, "High", "Ultra"));
+		AddGame("Marvel Rivals", "MR", "Competitive", "HERO SHOOTER", "Fast ability readability with effects kept under control.", "144+ FPS", "Competitive", "#3CC4E5", "#4A286B",
+			CompetitiveSettings("Low", "TAAU", "On + Boost"));
+		AddGame("Rainbow Six Siege", "R6", "Competitive", "TACTICAL FPS", "High-refresh visibility with shadows retained for useful player cues.", "240+ FPS", "Competitive", "#E0A42B", "#434A31",
+			CompetitiveSettings("Low / medium shadows", "T-AA 2x", "NVIDIA Reflex On"));
+		AddGame("Overwatch 2", "OW2", "Competitive", "HERO SHOOTER", "A clarity-first preset with reduced effects and a stable render scale.", "180–240 FPS", "Competitive", "#F59A52", "#54305F",
+			CompetitiveSettings("Low", "SMAA Low", "Reflex + Boost"));
+		AddGame("Rocket League", "RL", "Competitive", "SPORTS", "Minimal visual noise and deterministic frame pacing for fast reads.", "240+ FPS", "Competitive", "#3287E5", "#1D335E",
+			CompetitiveSettings("High quality shaders / low effects", "FXAA Low", "Low-latency mode"));
+		AddGame("PUBG: Battlegrounds", "PUBG", "Competitive", "BATTLE ROYALE", "Long-range visibility with foliage, effects, and post-processing controlled.", "144+ FPS", "Competitive", "#D99D3D", "#3D3527",
+			CompetitiveSettings("Very low / medium textures", "Medium AA", "Reflex On"));
+		AddGame("Elden Ring", "ER", "AAA", "ACTION RPG", "A consistent quality preset built around the game's frame-rate ceiling.", "Stable 60", "Optimized High", "#BFA466", "#312A35",
+			QualitySettings(qualityResolution, "Native / Quality upscaling", "Off", "High"));
+		AddGame("Black Myth: Wukong", "BMW", "AAA", "ACTION RPG", "Balanced cinematic detail with costly global illumination kept realistic for the GPU.", highEndGpu ? "80–100 FPS" : "60 FPS", "High balanced", "#C88955", "#342A27",
+			QualitySettings(qualityResolution, upscaler, highEndGpu ? "Medium" : "Off", "High"));
+		AddGame("Alan Wake 2", "AW2", "AAA", "SURVIVAL HORROR", "A GPU-aware cinematic preset with path tracing reserved for capable hardware.", highEndGpu ? "60–90 FPS" : "Stable 60", "Cinematic balanced", "#6B84B8", "#20243A",
+			QualitySettings(qualityResolution, upscaler, highEndGpu ? "Medium" : "Off", "High"));
+		AddGame("Helldivers 2", "HD2", "AAA", "CO-OP SHOOTER", "Clear combat effects and reduced volumetrics for heavy encounters.", "90–144 FPS", "Optimized High", "#E6C84C", "#273344",
+			QualitySettings(qualityResolution, "Ultra Quality / Native", "Off", "High"));
+
+		GameCountText.Text = $"{Games.Count} CURATED PROFILES";
+
+		if (Games.Count > 0)
+		{
+			SelectGame(Games[0]);
+		}
+	}
+
+	private static IReadOnlyList<GameSettingRow> CompetitiveSettings(string quality, string antiAliasing, string latency)
+	{
+		return new[]
+		{
+			new GameSettingRow { Name = "Display mode", Value = "Exclusive fullscreen", Reason = "Keeps presentation predictable and minimizes compositor overhead." },
+			new GameSettingRow { Name = "Frame cap", Value = "Refresh rate - 3 FPS", Reason = "Leaves headroom for stable frame pacing when VRR is active." },
+			new GameSettingRow { Name = "Visual quality", Value = quality, Reason = "Prioritizes enemy readability and consistent frame times." },
+			new GameSettingRow { Name = "Anti-aliasing", Value = antiAliasing, Reason = "Controls shimmer without a large latency or GPU cost." },
+			new GameSettingRow { Name = "Low latency", Value = latency, Reason = "Reduces the render queue when supported by the game." },
+			new GameSettingRow { Name = "V-Sync", Value = "Off in game", Reason = "Use VRR at the driver/display level when available." }
+		};
+	}
+
+	private static IReadOnlyList<GameSettingRow> QualitySettings(string resolution, string upscaler, string rayTracing, string textures)
+	{
+		return new[]
+		{
+			new GameSettingRow { Name = "Resolution", Value = resolution, Reason = "Best target for the detected GPU class." },
+			new GameSettingRow { Name = "Upscaling", Value = upscaler, Reason = "Preserves image quality while recovering GPU headroom." },
+			new GameSettingRow { Name = "Textures", Value = textures, Reason = "Balances clarity against likely VRAM pressure." },
+			new GameSettingRow { Name = "Ray tracing", Value = rayTracing, Reason = "One of the largest performance costs in modern AAA games." },
+			new GameSettingRow { Name = "Motion blur", Value = "Off", Reason = "Improves clarity during camera movement." },
+			new GameSettingRow { Name = "Frame cap", Value = "Display refresh or stable 60", Reason = "A stable cap feels better than fluctuating peak frame rates." }
+		};
+	}
+
+	private void AddGame(string title, string shortName, string genre, string pace, string description, string target, string preset, string startColor, string endColor, IReadOnlyList<GameSettingRow> settings)
+	{
+		Games.Add(new GameProfile
+		{
+			Title = title,
+			ShortName = shortName,
+			Genre = genre,
+			Pace = pace,
+			Description = description,
+			Target = target,
+			Preset = preset,
+			CoverPath = "Assets/Games/" + GetGameCoverFile(title),
+			CoverBrush = new LinearGradientBrush((Color)ColorConverter.ConvertFromString(startColor), (Color)ColorConverter.ConvertFromString(endColor), 45),
+			Settings = settings,
+			TweakIds = new[] { "gaming.game-mode.enable", "gaming.game-dvr-policy.disable", "gaming.game-capture.disable", "gaming.pointer-acceleration.disable" }
+		});
+		if (Games[^1].CoverBrush.CanFreeze)
+		{
+			Games[^1].CoverBrush.Freeze();
+		}
+	}
+
+	private static string GetGameCoverFile(string title) => title switch
+	{
+		"Counter-Strike 2" => "cs2.jpg",
+		"VALORANT" => "valorant.jpg",
+		"Fortnite" => "fortnite.jpg",
+		"Call of Duty: Warzone" => "warzone.jpg",
+		"Apex Legends" => "apex-legends.jpg",
+		"Cyberpunk 2077" => "cyberpunk-2077.jpg",
+		"Red Dead Redemption 2" => "red-dead-redemption-2.jpg",
+		"Hogwarts Legacy" => "hogwarts-legacy.jpg",
+		"Forza Horizon 5" => "forza-horizon-5.jpg",
+		"Marvel Rivals" => "marvel-rivals.jpg",
+		"Rainbow Six Siege" => "rainbow-six-siege.jpg",
+		"Overwatch 2" => "overwatch-2.jpg",
+		"Rocket League" => "rocket-league.jpg",
+		"PUBG: Battlegrounds" => "pubg.jpg",
+		"Elden Ring" => "elden-ring.jpg",
+		"Black Myth: Wukong" => "black-myth-wukong.jpg",
+		"Alan Wake 2" => "alan-wake-2.jpg",
+		"Helldivers 2" => "helldivers-2.jpg",
+		_ => "cs2.jpg"
+	};
 
 	private async Task RefreshMetricsAsync()
 	{
@@ -383,10 +549,9 @@ public partial class MainWindow : Window
 			IpAddressText.Text = unicastIPAddressInformation?.Address.ToString() ?? "IPv4 unavailable";
 			GatewayText.Text = iPAddress?.ToString() ?? "Gateway unavailable";
 			NetworkModeText.Text = $"{(iPv4Properties.IsDhcpEnabled ? "DHCP" : "Static")} · MTU {iPv4Properties.Mtu}";
-			PingReply pingReply = ((iPAddress != null) ? (await MeasurePingAsync(iPAddress.ToString())) : null);
-			PingReply gatewayResult = pingReply;
-			PingReply reply = await MeasurePingAsync("1.1.1.1");
-			NetworkHealthText.Text = $"Gateway: {FormatPing(gatewayResult)}   ·   Internet: {FormatPing(reply)}   ·   DNS servers: {dns.Length}";
+			PingReply? gatewayResult = iPAddress != null ? await MeasurePingAsync(iPAddress.ToString()) : null;
+			string routeQuality = await MeasureRouteQualityAsync("1.1.1.1", 6);
+			NetworkHealthText.Text = $"Gateway: {FormatPing(gatewayResult)}   ·   WAN: {routeQuality}   ·   DNS servers: {dns.Length}";
 		}
 		catch (NetworkInformationException)
 		{
@@ -416,6 +581,22 @@ public partial class MainWindow : Window
 			return "ICMP unavailable";
 		}
 		return $"{reply.RoundtripTime} ms";
+	}
+
+	private static async Task<string> MeasureRouteQualityAsync(string host, int samples)
+	{
+		Task<PingReply?>[] probes = Enumerable.Range(0, samples).Select(_ => MeasurePingAsync(host)).ToArray();
+		PingReply?[] replies = await Task.WhenAll(probes);
+		long[] successful = replies.Where(r => r?.Status == IPStatus.Success).Select(r => r!.RoundtripTime).ToArray();
+		if (successful.Length == 0)
+			return "ICMP unavailable";
+
+		double average = successful.Average();
+		double jitter = successful.Length < 2
+			? 0
+			: successful.Zip(successful.Skip(1), (a, b) => Math.Abs(b - a)).Average();
+		int loss = (int)Math.Round(100d * (samples - successful.Length) / samples);
+		return $"{average:0} ms avg · {jitter:0.0} ms jitter · {loss}% loss";
 	}
 
 	private bool FilterTweak(object item)
@@ -498,11 +679,36 @@ public partial class MainWindow : Window
 
 	private void UpdateSelection()
 	{
+		if (_batchSelecting)
+		{
+			return;
+		}
 		int num = Tweaks.Count((TweakItemViewModel t) => t.IsSelected);
 		SelectionText.Text = ((num == 1) ? "1 tweak selected" : $"{num} tweaks selected");
+		GlobalSelectionCount.Text = num == 0 ? "Nothing selected" : num == 1 ? "1 item selected" : $"{num} items selected";
 		int num2 = GamingTweaks.Count((TweakItemViewModel t) => t.IsSelected);
 		GamingSelectionText.Text = ((num2 == 1) ? "1 gaming control selected" : $"{num2} gaming controls selected");
 		ReviewButton.IsEnabled = num > 0;
+		GlobalReviewButton.IsEnabled = num > 0;
+	}
+
+	private bool FilterGame(object item)
+	{
+		if (item is not GameProfile game)
+		{
+			return false;
+		}
+
+		string query = GameSearchBox?.Text?.Trim() ?? string.Empty;
+		if (!string.IsNullOrEmpty(query) && !game.SearchText.Contains(query, StringComparison.OrdinalIgnoreCase))
+		{
+			return false;
+		}
+
+		string filter = GameFilter?.SelectedItem is ComboBoxItem selected
+			? selected.Content?.ToString() ?? "All games"
+			: "All games";
+		return filter == "All games" || game.Genre.Equals(filter, StringComparison.OrdinalIgnoreCase);
 	}
 
 	private async void Review_Click(object sender, RoutedEventArgs e)
@@ -520,7 +726,9 @@ public partial class MainWindow : Window
 		}
 		_reviewOrigin = ((GamingPage.Visibility == Visibility.Visible) ? GamingPage : ((AppsPage.Visibility == Visibility.Visible) ? AppsPage : OptimizePage));
 		ReviewButton.IsEnabled = false;
+		GlobalReviewButton.IsEnabled = false;
 		ReviewButton.Content = "Scanning current state…";
+		GlobalReviewButton.Content = "Scanning…";
 		try
 		{
 			OperationContext context = new OperationContext
@@ -554,7 +762,48 @@ public partial class MainWindow : Window
 		{
 			ReviewButton.Content = "Review plan  →";
 			ReviewButton.IsEnabled = Tweaks.Any((TweakItemViewModel t) => t.IsSelected);
+			GlobalReviewButton.Content = "Review plan  →";
+			GlobalReviewButton.IsEnabled = Tweaks.Any((TweakItemViewModel t) => t.IsSelected);
 		}
+	}
+
+	private void ToggleTweakDetails_Click(object sender, RoutedEventArgs e)
+	{
+		if (sender is Button { Tag: TweakItemViewModel tweak })
+			tweak.IsExpanded = !tweak.IsExpanded;
+	}
+
+	private void AppsSectionTab_Click(object sender, RoutedEventArgs e)
+	{
+		if (sender is Button { Tag: string section })
+			ShowAppsSection(section);
+	}
+
+	private void ShowAppsSection(string section)
+	{
+		bool scan = section.Equals("scan", StringComparison.OrdinalIgnoreCase);
+		bool catalog = section.Equals("catalog", StringComparison.OrdinalIgnoreCase);
+		bool software = section.Equals("software", StringComparison.OrdinalIgnoreCase);
+
+		DebloatScanPanel.Visibility = scan ? Visibility.Visible : Visibility.Collapsed;
+		DebloatCatalogHeader.Visibility = catalog ? Visibility.Visible : Visibility.Collapsed;
+		DebloatCatalogList.Visibility = catalog ? Visibility.Visible : Visibility.Collapsed;
+		DebloatCatalogReviewButton.Visibility = catalog ? Visibility.Visible : Visibility.Collapsed;
+		DebloatProtectionNotice.Visibility = catalog ? Visibility.Visible : Visibility.Collapsed;
+		SoftwareHeader.Visibility = software ? Visibility.Visible : Visibility.Collapsed;
+		SoftwareCatalog.Visibility = software ? Visibility.Visible : Visibility.Collapsed;
+		AppManagementTools.Visibility = software ? Visibility.Visible : Visibility.Collapsed;
+
+		DebloatScanTab.Style = (Style)FindResource(scan ? "SecondaryButton" : "GhostButton");
+		DebloatCatalogTab.Style = (Style)FindResource(catalog ? "SecondaryButton" : "GhostButton");
+		SoftwareTab.Style = (Style)FindResource(software ? "SecondaryButton" : "GhostButton");
+
+		AppsPageTitle.Text = scan ? "Scan first. Remove only what is actually there."
+			: catalog ? "Browse optional apps with the tradeoffs visible."
+			: "Install useful tools without hunting for installers.";
+		AppsPageSubtitle.Text = scan ? "Optimal matches installed packages against a reviewed optional-app catalog. Nothing is selected automatically."
+			: catalog ? "Use Details when you need context; your selections remain in the plan tray."
+			: "Every install uses an exact WinGet package ID and remains optional.";
 	}
 
 	private void BackToTweaks_Click(object sender, RoutedEventArgs e)
@@ -689,10 +938,13 @@ public partial class MainWindow : Window
 
 	private void Recommended_Click(object sender, RoutedEventArgs e)
 	{
-		foreach (TweakItemViewModel tweak in Tweaks)
+		BatchSelection(() =>
 		{
-			tweak.IsSelected = tweak.Definition.Tier == TweakTier.Verified && (_advancedMode || !tweak.IsAdvanced);
-		}
+			foreach (TweakItemViewModel tweak in Tweaks)
+			{
+				tweak.IsSelected = tweak.Definition.Tier == TweakTier.Verified && (_advancedMode || !tweak.IsAdvanced);
+			}
+		});
 	}
 
 	private void Preset_Click(object sender, RoutedEventArgs e)
@@ -701,20 +953,22 @@ public partial class MainWindow : Window
 		{
 			return;
 		}
-		foreach (TweakItemViewModel tweak in Tweaks)
+		BatchSelection(() =>
 		{
-			tweak.IsSelected = false;
-		}
-		foreach (TweakItemViewModel tweak2 in Tweaks)
-		{
-			if (!_advancedMode && tweak2.IsAdvanced)
+			foreach (TweakItemViewModel tweak in Tweaks)
 			{
-				continue;
+				tweak.IsSelected = false;
 			}
-			TweakItemViewModel tweakItemViewModel = tweak2;
-			bool isSelected;
-			switch (tag.ToLowerInvariant())
+			foreach (TweakItemViewModel tweak2 in Tweaks)
 			{
+				if (!_advancedMode && tweak2.IsAdvanced)
+				{
+					continue;
+				}
+				TweakItemViewModel tweakItemViewModel = tweak2;
+				bool isSelected;
+				switch (tag.ToLowerInvariant())
+				{
 			case "minimal":
 			{
 				bool flag = tweak2.Definition.Tier == TweakTier.Verified;
@@ -780,13 +1034,13 @@ public partial class MainWindow : Window
 				isSelected = flag;
 				break;
 			}
-			default:
-				isSelected = false;
-				break;
+				default:
+					isSelected = false;
+					break;
+				}
+				tweakItemViewModel.IsSelected = isSelected;
 			}
-			tweakItemViewModel.IsSelected = isSelected;
-		}
-		UpdateSelection();
+		});
 	}
 
 	private void SelectTweak_Click(object sender, RoutedEventArgs e)
@@ -850,15 +1104,113 @@ public partial class MainWindow : Window
 
 	private void Clear_Click(object sender, RoutedEventArgs e)
 	{
-		foreach (TweakItemViewModel tweak in Tweaks)
+		BatchSelection(() =>
 		{
-			tweak.IsSelected = false;
-		}
+			foreach (TweakItemViewModel tweak in Tweaks)
+			{
+				tweak.IsSelected = false;
+			}
+		});
 	}
 
 	private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
 	{
-		TweakView.Refresh();
+		_searchDebounceTimer.Stop();
+		_searchDebounceTimer.Start();
+	}
+
+	private void BatchSelection(Action action)
+	{
+		_batchSelecting = true;
+		try
+		{
+			action();
+		}
+		finally
+		{
+			_batchSelecting = false;
+		}
+		UpdateSelection();
+	}
+
+	private void GameSearchBox_TextChanged(object sender, TextChangedEventArgs e)
+	{
+		_gameSearchDebounceTimer.Stop();
+		_gameSearchDebounceTimer.Start();
+	}
+
+	private void GameFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		GameView.Refresh();
+	}
+
+	private void GameCard_Click(object sender, RoutedEventArgs e)
+	{
+		if (sender is Button { Tag: GameProfile game })
+		{
+			SelectGame(game);
+		}
+	}
+
+	private void SelectGame(GameProfile game)
+	{
+		SelectedGameTitle.Text = game.Title;
+		SelectedGameGenre.Text = $"{game.Genre.ToUpperInvariant()}  ·  {game.Pace}";
+		SelectedGameDescription.Text = game.Description;
+		SelectedGameTarget.Text = game.Target;
+		SelectedGamePreset.Text = game.Preset;
+		SelectedGameMark.Text = game.ShortName;
+		SelectedGameHero.Background = game.CoverBrush;
+		SelectedGameHero.DataContext = game;
+		SelectedGameHero.Tag = game;
+		SelectedGameSettings.Clear();
+		foreach (GameSettingRow setting in game.Settings)
+		{
+			SelectedGameSettings.Add(setting);
+		}
+	}
+
+	private void ApplyGameProfile_Click(object sender, RoutedEventArgs e)
+	{
+		if (SelectedGameHero.Tag is not GameProfile game)
+		{
+			return;
+		}
+
+		HashSet<string> ids = game.TweakIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		BatchSelection(() =>
+		{
+			foreach (TweakItemViewModel tweak in Tweaks.Where(t => ids.Contains(t.Id)))
+			{
+				tweak.IsSelected = true;
+			}
+
+			if (_gamingRecommendation?.CanApplyAutomatically == true)
+			{
+				TweakItemViewModel? driverProfile = Tweaks.FirstOrDefault(t => t.Id.Equals(_gamingRecommendation.ProfileId, StringComparison.OrdinalIgnoreCase));
+				if (driverProfile != null)
+				{
+					driverProfile.IsSelected = true;
+				}
+			}
+		});
+
+		GamingLibraryStatus.Text = $"{game.Title} system profile added · review required";
+		GamingLibraryStatus.Foreground = (Brush)FindResource("SuccessBrush");
+	}
+
+	private void CopyGameSettings_Click(object sender, RoutedEventArgs e)
+	{
+		if (SelectedGameHero.Tag is not GameProfile game)
+		{
+			return;
+		}
+
+		string guide = game.Title + " — Optimal " + game.Preset + Environment.NewLine
+			+ string.Join(Environment.NewLine, game.Settings.Select(setting => $"{setting.Name}: {setting.Value}"));
+		Clipboard.SetText(guide);
+		GamingLibraryStatus.Text = $"{game.Title} settings copied — paste them beside the game settings menu";
+		GamingLibraryStatus.Foreground = (Brush)FindResource("AccentBrush");
 	}
 
 	private void CategoryFilter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -913,6 +1265,48 @@ public partial class MainWindow : Window
 		{
 			MessageBox.Show("Windhawk could not be opened.\n\n" + ex.Message, "Windhawk", MessageBoxButton.OK, MessageBoxImage.Asterisk);
 		}
+	}
+
+	private async void ScanDebloat_Click(object sender, RoutedEventArgs e)
+	{
+		DebloatScanButton.IsEnabled = false;
+		DebloatScanStatus.Text = "Reading installed packages…";
+		DebloatScanResults.Clear();
+		try
+		{
+			IReadOnlySet<string> installed = await _debloatScanner.ScanCurrentUserPackagesAsync(_lifetime.Token);
+			foreach (TweakItemViewModel tweak in DebloatTweaks.OrderBy(t => t.Name, StringComparer.OrdinalIgnoreCase))
+			{
+				OperationSpec? operation = tweak.Definition.Apply.FirstOrDefault(o => o.Type.Equals("appx", StringComparison.OrdinalIgnoreCase));
+				if (operation == null)
+					continue;
+				string packageName = operation.RequireString("packageName");
+				if (installed.Contains(packageName))
+					DebloatScanResults.Add(new DebloatScanItem(tweak, packageName));
+			}
+			DebloatScanStatus.Text = DebloatScanResults.Count == 0
+				? "No removable optional packages from Optimal's reviewed catalog were found."
+				: $"{DebloatScanResults.Count} reviewed optional packages found · nothing selected";
+		}
+		catch (OperationCanceledException)
+		{
+			DebloatScanStatus.Text = "Scan cancelled.";
+		}
+		catch (Exception ex)
+		{
+			DebloatScanStatus.Text = "Scan failed: " + ex.Message;
+		}
+		finally
+		{
+			DebloatScanButton.IsEnabled = true;
+		}
+	}
+
+	private void SelectDetectedDebloat_Click(object sender, RoutedEventArgs e)
+	{
+		foreach (DebloatScanItem item in DebloatScanResults)
+			item.IsSelected = true;
+		DebloatScanStatus.Text = $"{DebloatScanResults.Count} packages selected · review the plan before removal";
 	}
 
 	private void OpenDiscord_Click(object sender, RoutedEventArgs e)
@@ -1043,6 +1437,7 @@ public partial class MainWindow : Window
 
 	private void AppsNav_Click(object sender, RoutedEventArgs e)
 	{
+		ShowAppsSection("scan");
 		ShowPage(AppsPage);
 	}
 
@@ -1101,6 +1496,12 @@ public partial class MainWindow : Window
 
 	private void ShowPage(UIElement page)
 	{
+		if (ReferenceEquals(_visiblePage, page) && page.Visibility == Visibility.Visible)
+		{
+			return;
+		}
+
+		_visiblePage = page;
 		Grid[] array = new Grid[13]
 		{
 			HomePage, OptimizePage, GamingPage, AppsPage, MaintenancePage, NetworkPage, ModulesPage, RestorePage, ReviewPage, ExecutionPage,
@@ -1130,14 +1531,14 @@ public partial class MainWindow : Window
 	{
 		element.Opacity = 0.0;
 		element.RenderTransform = new TranslateTransform(0.0, 10.0);
-		element.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(180L, 0L))
+		element.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(120L, 0L))
 		{
 			EasingFunction = new QuadraticEase
 			{
 				EasingMode = EasingMode.EaseOut
 			}
 		});
-		((TranslateTransform)element.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(10.0, 0.0, TimeSpan.FromMilliseconds(220L, 0L))
+		((TranslateTransform)element.RenderTransform).BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(10.0, 0.0, TimeSpan.FromMilliseconds(150L, 0L))
 		{
 			EasingFunction = new CubicEase
 			{
@@ -1171,5 +1572,30 @@ public partial class MainWindow : Window
 	private void Close_Click(object sender, RoutedEventArgs e)
 	{
 		Close();
+	}
+
+	private void Window_KeyDown(object sender, KeyEventArgs e)
+	{
+		if (e.Key == Key.F && Keyboard.Modifiers.HasFlag(ModifierKeys.Control))
+		{
+			ShowPage(OptimizePage);
+			SearchBox.Focus();
+			Keyboard.Focus(SearchBox);
+			e.Handled = true;
+			return;
+		}
+
+		if (e.Key == Key.Enter && Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && GlobalReviewButton.IsEnabled)
+		{
+			Review_Click(GlobalReviewButton, new RoutedEventArgs());
+			e.Handled = true;
+			return;
+		}
+
+		if (e.Key == Key.Escape && ReviewPage.Visibility == Visibility.Visible)
+		{
+			ShowPage(_reviewOrigin ?? OptimizePage);
+			e.Handled = true;
+		}
 	}
 }

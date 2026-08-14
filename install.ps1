@@ -1,7 +1,14 @@
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
-$repository = 'unquerys/Optimal'
+$repository = if ([string]::IsNullOrWhiteSpace($env:OPTIMAL_GITHUB_REPOSITORY)) {
+    'unquerys/Optimal'
+} else {
+    $env:OPTIMAL_GITHUB_REPOSITORY.Trim()
+}
+if ($repository -notmatch '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$') {
+    throw 'OPTIMAL_GITHUB_REPOSITORY must use the owner/repository format.'
+}
 $apiUri = "https://api.github.com/repos/$repository/releases/latest"
 $headers = @{ 'User-Agent' = 'Optimal-Installer' }
 $tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("Optimal-Install-" + [Guid]::NewGuid().ToString('N'))
@@ -27,9 +34,12 @@ try {
     Invoke-WebRequest -Uri $installerAsset.browser_download_url -Headers $headers -OutFile $installerPath
     Invoke-WebRequest -Uri $checksumAsset.browser_download_url -Headers $headers -OutFile $checksumPath
 
-    $expected = ((Get-Content -LiteralPath $checksumPath -Raw).Trim() -split '\s+')[0]
+    $expected = ((Get-Content -LiteralPath $checksumPath -Raw).Trim() -split '\s+')[0].ToUpperInvariant()
+    if ($expected -notmatch '^[A-F0-9]{64}$') {
+        throw 'The published installer checksum is not a valid SHA-256 value.'
+    }
     $actual = (Get-FileHash -LiteralPath $installerPath -Algorithm SHA256).Hash
-    if ([string]::IsNullOrWhiteSpace($expected) -or $actual -ne $expected.ToUpperInvariant()) {
+    if ($actual -ne $expected) {
         throw 'Installer checksum verification failed. The installer will not run.'
     }
 
